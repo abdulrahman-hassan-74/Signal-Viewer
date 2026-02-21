@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🦠 Microbiome Profiler - Signal Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .microbiome-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .bacteria-legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+            padding: 15px;
+            background: #0f1422;
+            border-radius: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .risk-high {
+            background: rgba(255,107,107,0.2);
+            border-left: 4px solid #ff6b6b;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .risk-moderate {
+            background: rgba(255,212,59,0.2);
+            border-left: 4px solid #ffd43b;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .dataset-selector {
+            background: #1a1f2e;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .dataset-btn {
+            background: #0f1422;
+            border: 1px solid #2a2f3e;
+            color: #8a9ab0;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .dataset-btn:hover, .dataset-btn.active {
+            background: #4a9eff;
+            color: white;
+            border-color: #6ab0ff;
+        }
+
+        .dysbiosis-meter {
+            width: 100%;
+            height: 20px;
+            background: #0f1422;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .dysbiosis-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #51cf66, #ffd43b, #ff6b6b);
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+
+        .recommendation-card {
+            background: #1a1f2e;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid;
+        }
+
+        .recommendation-high {
+            border-left-color: #ff6b6b;
+        }
+
+        .recommendation-medium {
+            border-left-color: #ffd43b;
+        }
+
+        .recommendation-low {
+            border-left-color: #51cf66;
+        }
+    </style>
+</head>
+<body>
+    <div class="icu-monitor" id="microbiomeViewer">
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h1>🦠 Microbiome Profiler</h1>
+                <p style="color: #8a9ab0; margin-top: 5px;">Bacterial Abundance Analysis | Disease Correlation | Patient Profiling</p>
+            </div>
+            <button class="back-button" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
+        </div>
+
+        <div class="microbiome-container">
+            <!-- Dataset Selector -->
+            <div class="dataset-selector">
+                <span style="color: #4a9eff; font-weight: 600;">Select Dataset:</span>
+                <button class="dataset-btn active" data-dataset="ihmp">iHMP (IBD/Prediabetes)</button>
+                <button class="dataset-btn" data-dataset="ipop">iPOP (Healthy/Viral)</button>
+                <button class="dataset-btn" data-dataset="custom">Custom Input</button>
+
+                <div style="margin-left: auto;">
+                    <button id="analyzeBtn" class="active">🔬 Analyze Sample</button>
+                </div>
+            </div>
+
+            <!-- Custom Input (hidden by default) -->
+            <div id="customInput" style="display: none; background: #1a1f2e; border-radius: 12px; padding: 20px; margin-bottom: 30px;">
+                <h3 style="color: #4a9eff; margin-bottom: 15px;">Enter Bacterial Abundances</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div>
+                        <label style="color: #8a9ab0;">Firmicutes:</label>
+                        <input type="number" id="firmicutes" value="0.65" step="0.01" min="0" max="1" class="symbol-selector" style="width: 100%;">
+                    </div>
+                    <div>
+                        <label style="color: #8a9ab0;">Bacteroidetes:</label>
+                        <input type="number" id="bacteroidetes" value="0.25" step="0.01" min="0" max="1" class="symbol-selector" style="width: 100%;">
+                    </div>
+                    <div>
+                        <label style="color: #8a9ab0;">Proteobacteria:</label>
+                        <input type="number" id="proteobacteria" value="0.05" step="0.01" min="0" max="1" class="symbol-selector" style="width: 100%;">
+                    </div>
+                    <div>
+                        <label style="color: #8a9ab0;">Actinobacteria:</label>
+                        <input type="number" id="actinobacteria" value="0.03" step="0.01" min="0" max="1" class="symbol-selector" style="width: 100%;">
+                    </div>
+                    <div>
+                        <label style="color: #8a9ab0;">Fusobacteria:</label>
+                        <input type="number" id="fusobacteria" value="0.01" step="0.01" min="0" max="1" class="symbol-selector" style="width: 100%;">
+                    </div>
+                    <div>
+                        <label style="color: #8a9ab0;">Other:</label>
+                        <input type="number" id="other" value="0.01" step="0.01" min="0" max="1" class="symbol-selector" style="width: 100%;">
+                    </div>
+                </div>
+                <p style="color: #8a9ab0; margin-top: 10px; font-size: 0.9rem;">* Values should sum to 1.0 (100%)</p>
+            </div>
+
+            <!-- Results Grid -->
+            <div class="profile-grid" id="resultsGrid" style="display: none;">
+                <!-- Left Column - Visualization -->
+                <div class="plot-container">
+                    <div class="plot-title">📊 BACTERIAL ABUNDANCE</div>
+                    <div id="abundanceChart" style="width:100%; height:350px"></div>
+
+                    <div class="bacteria-legend" id="bacteriaLegend"></div>
+                </div>
+
+                <!-- Right Column - Profile & Risk -->
+                <div class="plot-container">
+                    <div class="plot-title">🔬 PATIENT PROFILE</div>
+                    <div id="profileDetails"></div>
+
+                    <div style="margin-top: 20px;">
+                        <div class="plot-title">⚠️ RISK FACTORS</div>
+                        <div id="riskFactors"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations Section -->
+            <div class="plot-container" id="recommendationsSection" style="display: none;">
+                <div class="plot-title">💡 PERSONALIZED RECOMMENDATIONS</div>
+                <div id="recommendations"></div>
+            </div>
+
+            <!-- Info Panel -->
+            <div class="info-panel">
+                <strong>🧬 About Microbiome Analysis:</strong>
+                <ul style="margin-top: 10px; list-style: none;">
+                    <li>• <strong>Firmicutes/Bacteroidetes ratio:</strong> Key biomarker for obesity and metabolic health</li>
+                    <li>• <strong>Proteobacteria:</strong> Elevated in inflammation and dysbiosis</li>
+                    <li>• <strong>Fusobacteria:</strong> Associated with colorectal cancer risk</li>
+                    <li>• <strong>Diversity Index:</strong> Higher diversity = better health</li>
+                    <li>• <strong>Datasets:</strong> iHMP (IBD, Prediabetes), iPOP (Healthy, Viral infection)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Plotly -->
+    <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+    <script src="js/microbiome.js"></script>
+</body>
+</html>

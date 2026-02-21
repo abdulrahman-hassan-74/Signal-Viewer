@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧬 Medical Signals - Signal Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .filter-controls {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            padding: 10px;
+            background: #0f1422;
+            border-radius: 5px;
+        }
+
+        .filter-btn {
+            background: #2a4a6a;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .filter-btn.active {
+            background: #4a9eff;
+        }
+    </style>
+</head>
+<body>
+    <div class="icu-monitor" id="medicalViewer">
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h1 class="main-title">🧬 Bio-Medical Signal Viewer</h1>
+                <p style="color: #8a9ab0;">ECG | EEG | Multi-Channel Analysis with AI Diagnosis</p>
+            </div>
+            <button class="back-button" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="fileInput" accept=".csv,.edf,.bdf,.mat,.hea,.dat,.txt" style="display: none">
+                <div class="upload-icon">📊</div>
+                <h2>Upload Signal File</h2>
+                <p class="supported-formats">Supported: EDF, BDF, MAT, CSV, WFDB, TXT</p>
+                <p class="click-hint">Click anywhere or drag & drop</p>
+            </div>
+
+            <div id="loadingIndicator" class="loading" style="display: none">
+                ⏳ Processing file... Please wait
+            </div>
+            <div id="errorMessage" class="error" style="display: none"></div>
+        </div>
+
+        <!-- Filter Controls -->
+        <div id="filterControls" style="display: none; margin-bottom: 20px;">
+            <div class="plot-container">
+                <div class="plot-title">🎛️ FILTER CONTROLS</div>
+                <div class="filter-controls">
+                    <button class="filter-btn" onclick="app.applyFilter('lowpass', 50)">Lowpass 50Hz</button>
+                    <button class="filter-btn" onclick="app.applyFilter('highpass', 0.5)">Highpass 0.5Hz</button>
+                    <button class="filter-btn" onclick="app.applyFilter('bandpass', 50)">Bandpass 0.5-50Hz</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div id="tabsContainer" style="display: none">
+            <div class="tabs">
+                <button id="tabChannels" class="tab-button active">📊 Multi-Channel View</button>
+                <button id="tabRecurrence" class="tab-button">🔁 Recurrence Map</button>
+                <button id="tabPolar" class="tab-button">🌀 Polar View</button>
+            </div>
+        </div>
+
+        <!-- Instructions Panel -->
+<div class="plot-container" style="margin-top: 20px; display: none;" id="instructionsPanel">
+    <div class="plot-title">📚 HOW TO USE THE SIGNAL VIEWER</div>
+    <div class="instructions-grid">
+        <div class="instruction-item">
+            <h4>1️⃣ File Upload</h4>
+            <ul>
+                <li>Click the upload area or drag & drop your file</li>
+                <li>Supported formats: EDF, BDF, MAT, CSV, WFDB</li>
+                <li>Files are automatically displayed after upload</li>
+                <li>Maximum file size: 200MB</li>
+            </ul>
+        </div>
+        <div class="instruction-item">
+            <h4>2️⃣ Playback Controls</h4>
+            <ul>
+                <li>▶ <strong>Play</strong>: Start signal animation</li>
+                <li>⏸ <strong>Pause</strong>: Stop animation</li>
+                <li>⏮ <strong>Reset</strong>: Return to beginning</li>
+                <li><strong>Speed slider</strong>: Adjust animation speed (0.5x - 3x)</li>
+            </ul>
+        </div>
+        <div class="instruction-item">
+            <h4>3️⃣ Channel Management</h4>
+            <ul>
+                <li><strong>Checkboxes</strong>: Show/hide individual channels</li>
+                <li><strong>All button</strong>: Show all channels</li>
+                <li><strong>None button</strong>: Hide all channels</li>
+                <li>Each channel has a unique color</li>
+            </ul>
+        </div>
+        <div class="instruction-item">
+            <h4>4️⃣ View Modes</h4>
+            <ul>
+                <li><strong>Combined</strong>: All channels in one plot</li>
+                <li><strong>Separate</strong>: Each channel in its own plot</li>
+                <li>Switch modes using the buttons above the plot</li>
+            </ul>
+        </div>
+        <div class="instruction-item">
+            <h4>5️⃣ Interaction</h4>
+            <ul>
+                <li><strong>Zoom</strong>: Click and drag on the plot</li>
+                <li><strong>Pan</strong>: Click and drag axes</li>
+                <li><strong>Reset view</strong>: Double-click the plot</li>
+                <li><strong>View values</strong>: Hover over points</li>
+            </ul>
+        </div>
+        <div class="instruction-item">
+            <h4>6️⃣ Analysis Tools</h4>
+            <ul>
+                <li><strong>Recurrence Plot</strong>: Shows signal patterns</li>
+                <li><strong>Polar View</strong>: Periodicity analysis</li>
+                <li><strong>FFT</strong>: Frequency spectrum</li>
+                <li><strong>Wavelet</strong>: Time-frequency analysis</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Show instructions panel after file upload
+    document.addEventListener('fileUploaded', function() {
+        document.getElementById('instructionsPanel').style.display = 'block';
+    });
+</script>
+
+        <!-- Main Content -->
+        <div id="contentArea"></div>
+    </div>
+
+    <!-- Plotly -->
+    <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+    <script src="js/signalParser.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/visualizations.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
