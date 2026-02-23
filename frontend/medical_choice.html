@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Signals - Choose Type</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        .choice-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .choice-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .choice-header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #4a9eff, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .choice-header p {
+            color: #8a9ab0;
+            font-size: 1.1rem;
+        }
+
+        .choice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .choice-card {
+            background: #1a1f2e;
+            border: 1px solid #2a2f3e;
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .choice-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .choice-card.ecg:hover {
+            border-color: #ef4444;
+        }
+
+        .choice-card.eeg:hover {
+            border-color: #8b5cf6;
+        }
+
+        .choice-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .choice-card h2 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .choice-card.ecg h2 {
+            color: #ef4444;
+        }
+
+        .choice-card.eeg h2 {
+            color: #8b5cf6;
+        }
+
+        .choice-card p {
+            color: #8a9ab0;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .abnormalities-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .abnormality-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-ecg-normal { background: rgba(16,185,129,0.2); color: #10b981; border: 1px solid #10b981; }
+        .badge-ecg-afib { background: rgba(245,158,11,0.2); color: #f59e0b; border: 1px solid #f59e0b; }
+        .badge-ecg-vtach { background: rgba(239,68,68,0.2); color: #ef4444; border: 1px solid #ef4444; }
+        .badge-ecg-pvc { background: rgba(139,92,246,0.2); color: #8b5cf6; border: 1px solid #8b5cf6; }
+        .badge-ecg-brady { background: rgba(59,130,246,0.2); color: #3b82f6; border: 1px solid #3b82f6; }
+        .badge-ecg-tachy { background: rgba(249,115,22,0.2); color: #f97316; border: 1px solid #f97316; }
+
+        .badge-eeg-normal { background: rgba(16,185,129,0.2); color: #10b981; border: 1px solid #10b981; }
+        .badge-eeg-epilepsy { background: rgba(239,68,68,0.2); color: #ef4444; border: 1px solid #ef4444; }
+        .badge-eeg-slow { background: rgba(245,158,11,0.2); color: #f59e0b; border: 1px solid #f59e0b; }
+        .badge-eeg-asymmetry { background: rgba(139,92,246,0.2); color: #8b5cf6; border: 1px solid #8b5cf6; }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 40px;
+            padding: 12px 30px;
+            background: #2a4a6a;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .back-btn:hover {
+            background: #3a6a9a;
+        }
+
+        .server-info {
+            margin-top: 40px;
+            text-align: center;
+            padding: 20px;
+            background: #1a1f2e;
+            border-radius: 12px;
+            border: 1px solid #2a2f3e;
+        }
+
+        .server-info p {
+            color: #8a9ab0;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        .server-info .url {
+            color: #4a9eff;
+            font-weight: bold;
+        }
+
+        .server-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .status-connected {
+            background: rgba(16,185,129,0.2);
+            color: #10b981;
+            border: 1px solid #10b981;
+        }
+
+        .status-disconnected {
+            background: rgba(239,68,68,0.2);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="choice-container">
+        <div class="choice-header">
+            <h1>Medical Signal Analysis</h1>
+            <p>Choose the type of medical signal you want to analyze</p>
+        </div>
+
+        <div class="choice-grid">
+            <!-- ECG Card -->
+            <div class="choice-card ecg" onclick="window.location.href='ecg.html'">
+                <div class="choice-icon">❤️</div>
+                <h2>ECG</h2>
+                <p>Electrocardiogram - Heart activity analysis with 6 abnormality types</p>
+                <div class="abnormalities-list">
+                    <span class="abnormality-badge badge-ecg-normal">Normal</span>
+                    <span class="abnormality-badge badge-ecg-afib">AFib</span>
+                    <span class="abnormality-badge badge-ecg-vtach">VTach</span>
+                    <span class="abnormality-badge badge-ecg-pvc">PVC</span>
+                    <span class="abnormality-badge badge-ecg-brady">Brady</span>
+                    <span class="abnormality-badge badge-ecg-tachy">Tachy</span>
+                </div>
+            </div>
+
+            <!-- EEG Card -->
+            <div class="choice-card eeg" onclick="window.location.href='eeg.html'">
+                <div class="choice-icon">🧠</div>
+                <h2>EEG</h2>
+                <p>Electroencephalogram - Brain activity analysis with 4 abnormality types</p>
+                <div class="abnormalities-list">
+                    <span class="abnormality-badge badge-eeg-normal">Normal</span>
+                    <span class="abnormality-badge badge-eeg-epilepsy">Epilepsy</span>
+                    <span class="abnormality-badge badge-eeg-slow">Slow Waves</span>
+                    <span class="abnormality-badge badge-eeg-asymmetry">Asymmetry</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center;">
+            <button class="back-btn" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
+        </div>
+
+        <div class="server-info">
+            <p>🔗 Backend Server: <span class="url">http://127.0.0.1:5000</span>
+            <span id="serverStatus" class="server-status status-disconnected">Checking...</span></p>
+            <p id="serverDetails" style="color: #8a9ab0;">Checking connection...</p>
+        </div>
+    </div>
+
+    <script>
+        // Check backend connection
+        fetch('http://127.0.0.1:5000/api/health')
+            .then(response => response.json())
+            .then(data => {
+                const statusEl = document.getElementById('serverStatus');
+                const detailsEl = document.getElementById('serverDetails');
+                if (data.status === 'ok') {
+                    statusEl.textContent = '✅ Connected';
+                    statusEl.className = 'server-status status-connected';
+                    detailsEl.innerHTML = `ECG Model: ${data.ecg_model_loaded ? '✅' : '❌'} | EEG Model: ${data.eeg_model_loaded ? '✅' : '❌'}`;
+                } else {
+                    statusEl.textContent = '❌ Disconnected';
+                    statusEl.className = 'server-status status-disconnected';
+                    detailsEl.textContent = 'Cannot connect to backend. Make sure server is running on port 5000';
+                }
+            })
+            .catch(err => {
+                const statusEl = document.getElementById('serverStatus');
+                const detailsEl = document.getElementById('serverDetails');
+                statusEl.textContent = '❌ Disconnected';
+                statusEl.className = 'server-status status-disconnected';
+                detailsEl.textContent = 'Cannot connect to backend. Make sure server is running on port 5000';
+            });
+    </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧬 Signal Hub - Multi-Modal Analysis Platform</title>
+    <title>🧬 Signal Viewer Hub - Dashboard</title>
     <link rel="stylesheet" href="css/dashboard.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -27,17 +27,17 @@
             </div>
             <div class="status-item">
                 <span class="status-dot yellow"></span>
-                <span>4 Modules Active</span>
+                <span>6 Modules Active</span>
             </div>
         </div>
 
         <!-- Cards Grid -->
         <div class="cards-grid">
-            <!-- Card 1: Medical -->
-            <div class="card medical" onclick="window.location.href='medical.html'">
+            <!-- Medical Card -->
+            <div class="card medical" onclick="window.location.href='medical_choice.html'">
                 <div class="card-icon">🧬</div>
                 <h2>Bio-Medical Signals</h2>
-                <p>ECG / EEG Multi-Channel Viewer with AI-Powered Arrhythmia Detection</p>
+                <p>ECG / EEG Multi-Channel Viewer with AI-Powered Diagnosis</p>
                 <div class="card-features">
                     <span>XOR Graph</span>
                     <span>Recurrence Plot</span>
@@ -45,55 +45,42 @@
                     <span>AI Diagnosis</span>
                 </div>
                 <div class="card-footer">
-                    <span class="badge">4 Abnormalities</span>
-                    <span class="badge">Multi-Channel</span>
-                </div>
-                <div class="card-status">
-                    <span class="live-badge">AI READY</span>
+                    <span class="badge">ECG (6 types)</span>
+                    <span class="badge">EEG (4 types)</span>
                 </div>
             </div>
 
-            <!-- Card 2: Acoustic -->
+            <!-- Acoustic Card -->
             <div class="card acoustic" onclick="window.location.href='acoustic.html'">
                 <div class="card-icon">🎵</div>
                 <h2>Acoustic Analysis</h2>
                 <p>Doppler Effect Simulation & Unmanned Vehicle Detection</p>
                 <div class="card-features">
-                    <span>Spectrogram</span>
+                    <span>Doppler Gen</span>
                     <span>Velocity Estimator</span>
                     <span>Drone ID</span>
-                    <span>Doppler Gen</span>
                 </div>
                 <div class="card-footer">
                     <span class="badge">Real-time</span>
-                    <span class="badge">Classic ML</span>
-                </div>
-                <div class="card-status">
-                    <span class="live-badge">LIVE</span>
                 </div>
             </div>
 
-            <!-- Card 3: Finance -->
+            <!-- Finance Card -->
             <div class="card finance" onclick="window.location.href='finance.html'">
                 <div class="card-icon">📈</div>
                 <h2>Market Pulse</h2>
                 <p>Stocks | Currencies | Minerals - Prediction & Visualization</p>
                 <div class="card-features">
-                    <span>LSTM Forecast</span>
                     <span>Live Data</span>
+                    <span>Price Prediction</span>
                     <span>Technical Analysis</span>
-                    <span>Ensemble</span>
                 </div>
                 <div class="card-footer">
                     <span class="badge">Yahoo Finance</span>
-                    <span class="badge">5 Methods</span>
-                </div>
-                <div class="card-status">
-                    <span class="live-badge">API</span>
                 </div>
             </div>
 
-            <!-- Card 4: Microbiome -->
+            <!-- Microbiome Card -->
             <div class="card microbiome" onclick="window.location.href='microbiome.html'">
                 <div class="card-icon">🦠</div>
                 <h2>Microbiome Profiler</h2>
@@ -101,15 +88,11 @@
                 <div class="card-features">
                     <span>Bacterial Abundance</span>
                     <span>Disease Correlation</span>
-                    <span>Heatmaps</span>
                     <span>Risk Factors</span>
                 </div>
                 <div class="card-footer">
                     <span class="badge">iHMP</span>
-                    <span class="badge">6 Conditions</span>
-                </div>
-                <div class="card-status">
-                    <span class="live-badge">RESEARCH</span>
+                    <span class="badge">iPOP</span>
                 </div>
             </div>
         </div>
@@ -127,8 +110,8 @@
                     <div class="stat-label">Viewer Types</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value">4</div>
-                    <div class="stat-label">AI Models</div>
+                    <div class="stat-value">6+4</div>
+                    <div class="stat-label">Abnormalities</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-value">Real-time</div>

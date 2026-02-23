@@ -3,10 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧬 Signal Viewer Hub</title>
-    <meta http-equiv="refresh" content="0; url=dashboard.html">
+    <title>Signal Viewer Hub</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        .sub-options {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .sub-option {
+            background: #2a2f3e;
+            border: 1px solid #3a4050;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sub-option:hover {
+            background: #3a4050;
+            transform: translateX(5px);
+        }
+
+        .sub-option.ecg:hover {
+            border-color: #ef4444;
+        }
+
+        .sub-option.eeg:hover {
+            border-color: #8b5cf6;
+        }
+
+        .sub-option small {
+            color: #8a9ab0;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
-    <p>Redirecting to dashboard...</p>
+    <div class="dashboard">
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1 class="glitch" data-text="Signal Analysis Hub">Signal Analysis Hub</h1>
+            <p class="subtitle">Multi-Channel | Multi-Domain | Real-Time Processing</p>
+        </div>
+
+        <!-- System Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="status-dot" id="backendStatus"></span>
+                <span id="backendStatusText">Checking backend...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-dot" id="modelStatus"></span>
+                <span id="modelStatusText">Checking models...</span>
+            </div>
+        </div>
+
+        <!-- Cards Grid -->
+        <div class="cards-grid">
+            <!-- Medical Card -->
+            <div class="card medical" id="medicalCard">
+                <div class="card-icon">🧬</div>
+                <h2>Medical Signals</h2>
+                <p>Multi-channel ECG/EEG analysis with AI-powered diagnosis (ECG: 6 types, EEG: 4 types)</p>
+                <div class="card-features">
+                    <span>ECG</span>
+                    <span>EEG</span>
+                    <span>XOR Graph</span>
+                    <span>Polar View</span>
+                    <span>Recurrence Plot</span>
+                </div>
+                <div class="card-footer">
+                    <span class="badge">AI Ready</span>
+                    <span class="badge">Multi-Channel</span>
+                </div>
+
+                <!-- Sub-options -->
+                <div class="sub-options" id="medicalSubOptions">
+                    <button class="sub-option ecg" onclick="window.location.href='ecg.html'">
+                        <span>❤️ ECG - Electrocardiogram</span>
+                        <small>6 abnormalities: Normal, AFib, VTach, PVC, Brady, Tachy</small>
+                    </button>
+                    <button class="sub-option eeg" onclick="window.location.href='eeg.html'">
+                        <span>🧠 EEG - Electroencephalogram</span>
+                        <small>4 abnormalities: Normal, Epilepsy, Slow Waves, Asymmetry</small>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Acoustic Card -->
+            <div class="card acoustic" onclick="window.location.href='acoustic.html'">
+                <div class="card-icon">🎵</div>
+                <h2>Acoustic Analysis</h2>
+                <p>Doppler Effect Simulation & Drone Detection</p>
+                <div class="card-features">
+                    <span>Doppler Gen</span>
+                    <span>Velocity Est</span>
+                    <span>Drone ID</span>
+                </div>
+                <div class="card-footer">
+                    <span class="badge">Real-time</span>
+                </div>
+            </div>
+
+            <!-- Finance Card -->
+            <div class="card finance" onclick="window.location.href='finance.html'">
+                <div class="card-icon">📈</div>
+                <h2>Market Pulse</h2>
+                <p>Stocks | Currencies | Minerals - Prediction & Visualization</p>
+                <div class="card-features">
+                    <span>Live Data</span>
+                    <span>Forecast</span>
+                    <span>Indicators</span>
+                </div>
+                <div class="card-footer">
+                    <span class="badge">Yahoo Finance</span>
+                </div>
+            </div>
+
+            <!-- Microbiome Card -->
+            <div class="card microbiome" onclick="window.location.href='microbiome.html'">
+                <div class="card-icon">🦠</div>
+                <h2>Microbiome Profiler</h2>
+                <p>iHMP/iPOP Dataset Analysis & Patient Profiling</p>
+                <div class="card-features">
+                    <span>Bacterial Abundance</span>
+                    <span>Disease Correlation</span>
+                    <span>Risk Factors</span>
+                </div>
+                <div class="card-footer">
+                    <span class="badge">Research Grade</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Show ECG/EEG options when clicking Medical card
+        document.getElementById('medicalCard').addEventListener('click', function(e) {
+            if (e.target.closest('.sub-option')) return;
+
+            var subOptions = document.getElementById('medicalSubOptions');
+            subOptions.style.display = subOptions.style.display === 'flex' ? 'none' : 'flex';
+        });
+
+        // Check backend connection
+        fetch('http://127.0.0.1:5000/api/health')
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                var backendDot = document.getElementById('backendStatus');
+                var backendText = document.getElementById('backendStatusText');
+                var modelDot = document.getElementById('modelStatus');
+                var modelText = document.getElementById('modelStatusText');
+
+                if (data.status === 'ok') {
+                    backendDot.className = 'status-dot green';
+                    backendText.textContent = 'Backend Connected';
+
+                    if (data.ecg_model_loaded && data.eeg_model_loaded) {
+                        modelDot.className = 'status-dot green';
+                        modelText.textContent = 'All AI Models Ready';
+                    } else {
+                        modelDot.className = 'status-dot yellow';
+                        modelText.textContent = 'Some models not loaded (using fallback)';
+                    }
+                }
+            })
+            .catch(function(err) {
+                document.getElementById('backendStatus').className = 'status-dot red';
+                document.getElementById('backendStatusText').textContent = 'Backend Disconnected';
+                document.getElementById('modelStatus').className = 'status-dot red';
+                document.getElementById('modelStatusText').textContent = 'Models Unavailable';
+            });
+    </script>
 </body>
 </html>

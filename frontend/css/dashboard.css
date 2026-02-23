@@ -83,10 +83,15 @@ body {
     box-shadow: 0 0 10px #ffaa00;
 }
 
+.status-dot.red {
+    background: #ff4444;
+    box-shadow: 0 0 10px #ff4444;
+}
+
 /* Cards Grid */
 .cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
     gap: 30px;
     margin-bottom: 50px;
 }
@@ -181,89 +186,52 @@ body {
     color: #a0b0c0;
 }
 
-/* Card Status */
-.card-status {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-}
-
-.live-badge {
-    background: rgba(0, 255, 0, 0.15);
-    border: 1px solid #00ff00;
-    color: #00ff00;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 1px;
-    animation: pulse 2s infinite;
-}
-
-/* Stats Section */
-.stats-section {
-    background: rgba(26, 31, 46, 0.5);
-    border-radius: 24px;
-    padding: 30px;
-    margin-bottom: 40px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(74, 158, 255, 0.2);
-}
-
-.stats-section h3 {
-    color: #8a9ab0;
-    margin-bottom: 20px;
-    font-size: 1.2rem;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 20px;
-}
-
-.stat-item {
-    text-align: center;
-}
-
-.stat-value {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #4a9eff;
-    margin-bottom: 5px;
-}
-
-.stat-label {
-    color: #8a9ab0;
-    font-size: 0.9rem;
-}
-
-/* Footer */
-.footer {
-    text-align: center;
-    color: #5a6a7a;
-    padding: 20px;
+/* Sub Options */
+.sub-options {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 15px;
+    padding-top: 15px;
     border-top: 1px solid rgba(74, 158, 255, 0.2);
 }
 
-.footer .small {
-    font-size: 0.8rem;
-    margin-top: 10px;
-    color: #4a5a6a;
+.sub-option {
+    background: rgba(26, 31, 46, 0.8);
+    border: 1px solid #2a2f3e;
+    border-radius: 8px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
 
-/* Card Type Specific Gradients */
-.card.medical:hover {
-    background: linear-gradient(135deg, rgba(26,31,46,0.95), rgba(74,158,255,0.2));
+.sub-option:hover {
+    background: #2a2f3e;
+    border-color: #4a9eff;
+    transform: translateX(5px);
 }
-.card.acoustic:hover {
-    background: linear-gradient(135deg, rgba(26,31,46,0.95), rgba(255,107,107,0.2));
+
+.sub-option.ecg:hover {
+    border-color: #ef4444;
 }
-.card.finance:hover {
-    background: linear-gradient(135deg, rgba(26,31,46,0.95), rgba(81,207,102,0.2));
+
+.sub-option.eeg:hover {
+    border-color: #8b5cf6;
 }
-.card.microbiome:hover {
-    background: linear-gradient(135deg, rgba(26,31,46,0.95), rgba(255,212,59,0.2));
+
+.sub-option span {
+    font-weight: 600;
+    color: white;
+}
+
+.sub-option small {
+    color: #8a9ab0;
+    font-size: 11px;
+    margin-top: 4px;
 }
 
 /* Animations */
@@ -326,31 +294,5 @@ body {
         align-items: center;
         gap: 15px;
         border-radius: 20px;
-    }
-
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 480px) {
-    .dashboard {
-        padding: 20px 15px;
-    }
-
-    .glitch {
-        font-size: 2rem;
-    }
-
-    .card {
-        padding: 20px;
-    }
-
-    .card h2 {
-        font-size: 1.5rem;
-    }
-
-    .stats-grid {
-        grid-template-columns: 1fr;
     }
 }

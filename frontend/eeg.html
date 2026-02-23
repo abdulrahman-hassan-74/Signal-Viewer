@@ -3,170 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EEG Signal Viewer - Signal Hub</title>
+    <title>EEG Signal Viewer</title>
     <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        .abnormality-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-right: 8px;
-        }
-        .badge-normal { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981; }
-        .badge-epilepsy { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
-        .badge-slow { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid #f59e0b; }
-        .badge-asymmetry { background: rgba(139, 92, 246, 0.2); color: #8b5cf6; border: 1px solid #8b5cf6; }
-    </style>
 </head>
 <body>
-    <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
-        <span>Processing EEG signal...</span>
+        <span>Processing...</span>
     </div>
 
-    <!-- Notifications -->
-    <div class="notif-container" id="notifContainer"></div>
+    <div id="notifContainer" class="notif-container"></div>
 
-    <div class="page-wrap">
-        <!-- Header -->
+    <div class="container">
         <div class="header">
-            <h1>🧠 <span>EEG</span> Signal Viewer</h1>
-            <button class="back-btn" onclick="window.location.href='dashboard.html'">← Dashboard</button>
+            <h1>🧠 EEG Signal Viewer</h1>
+            <button class="back-btn" onclick="window.location.href='index.html'">← Back</button>
         </div>
 
-        <!-- Upload Area -->
-        <div class="upload-box" id="uploadBox">
-            <input type="file" id="fileInput" accept=".csv,.edf,.mat,.hea,.dat,.txt" style="display:none">
+        <div class="model-status">
+            <span>AI Model Status:</span>
+            <span id="modelStatus" class="model-badge badge-fallback">Checking...</span>
+            <div class="abnormalities-list">
+                <span class="abnormality-badge badge-normal">Normal</span>
+                <span class="abnormality-badge badge-epilepsy">Epilepsy</span>
+                <span class="abnormality-badge badge-slow">Slow Waves</span>
+                <span class="abnormality-badge badge-asymmetry">Asymmetry</span>
+            </div>
+        </div>
+
+        <div class="upload-area" id="uploadArea">
+            <input type="file" id="fileInput" accept=".csv,.edf,.bdf,.mat,.hea,.dat,.txt" style="display:none">
             <div class="upload-icon">📊</div>
             <h2>Upload EEG File</h2>
-            <p>EDF · MAT · CSV · WFDB — drag & drop or click</p>
+            <p>Supported: CSV, EDF, BDF, MAT, HEA, DAT, TXT</p>
+            <p class="click-hint">Click anywhere or drag & drop</p>
         </div>
 
-        <!-- Error Message -->
-        <div id="errorMessage" class="error-message" style="display: none;"></div>
-
-        <!-- Main Content (hidden until data loaded) -->
-        <div id="mainContent" class="hidden">
-            <!-- Tabs for different viewers -->
-            <div class="tabs">
-                <button class="tab-btn active" data-tab="channels" onclick="app.switchTab('channels')">📊 Multi-Channel</button>
-                <button class="tab-btn" data-tab="xor" onclick="app.switchTab('xor')">⊕ XOR Graph</button>
-                <button class="tab-btn" data-tab="polar" onclick="app.switchTab('polar')">🌀 Polar View</button>
-                <button class="tab-btn" data-tab="recurrence" onclick="app.switchTab('recurrence')">🔁 Recurrence</button>
-            </div>
-
-            <!-- Controls (same as ECG) -->
-            <div id="channelControls" class="ctrl-bar">
-                <button class="ctrl-btn active" onclick="app.setViewMode('combined')">📊 Combined View</button>
-                <button class="ctrl-btn" onclick="app.setViewMode('separate')">🔲 Separate Channels</button>
-                <span>Speed:</span>
-                <input type="range" id="speedSlider" min="0.2" max="5" step="0.1" value="1" oninput="app.setSpeed(this.value)">
-                <span id="speedLabel">1x</span>
-                <button class="ctrl-btn" id="playBtn" onclick="app.togglePlay()">▶ Play</button>
-                <button class="ctrl-btn" onclick="app.resetPlayback()">⏮ Reset</button>
-                <span id="timeLabel">0.0 s</span>
-            </div>
-
-            <div id="xorControls" class="ctrl-bar hidden">
-                <label>Channel:</label>
-                <select id="xorChannel"></select>
-                <label>Chunk Size:</label>
-                <input type="number" id="xorChunkSize" value="250" min="50" max="2000">
-                <button class="ctrl-btn" onclick="app.renderXOR()">Compute XOR</button>
-            </div>
-
-            <div id="polarControls" class="ctrl-bar hidden">
-                <label>Channel:</label>
-                <select id="polarChannel"></select>
-                <label>Period:</label>
-                <input type="number" id="polarPeriod" value="100" min="10" max="1000">
-                <label>Mode:</label>
-                <select id="polarMode">
-                    <option value="cumulative">Cumulative</option>
-                    <option value="sliding">Sliding Window</option>
-                </select>
-                <button class="ctrl-btn" onclick="app.renderPolar()">Render</button>
-            </div>
-
-            <div id="recurrenceControls" class="ctrl-bar hidden">
-                <label>X:</label>
-                <select id="recChX"></select>
-                <label>Y:</label>
-                <select id="recChY"></select>
-                <label>Threshold:</label>
-                <input type="number" id="recThreshold" value="0.5" min="0.1" max="2.0" step="0.05">
-                <label>Color Map:</label>
-                <select id="recColormap">
-                    <option value="Viridis">Viridis</option>
-                    <option value="Hot">Hot</option>
-                    <option value="Blues">Blues</option>
-                </select>
-                <button class="ctrl-btn" onclick="app.renderRecurrence()">Compute</button>
-            </div>
-
-            <!-- Main Grid -->
-            <div class="main-grid">
-                <!-- Left Column - Plots -->
-                <div>
-                    <div class="panel" id="plotArea">
-                        <div id="mainPlot" style="width:100%; min-height:500px;"></div>
-                    </div>
-                </div>
-
-                <!-- Right Column - Sidebar -->
-                <div class="sidebar">
-                    <!-- EEG AI Diagnosis -->
-                    <div class="panel" id="aiPanel">
-                        <div class="panel-title">🧠 Multi-channel EEG AI</div>
-                        <div id="aiResult" class="ai-result">
-                            <div class="empty-state">Load EEG to run AI analysis</div>
-                        </div>
-                    </div>
-
-                    <!-- Classic ML Comparison -->
-                    <div class="panel" id="classicPanel">
-                        <div class="panel-title">📊 Classic ML Comparison</div>
-                        <div id="classicResult" class="classic-result">
-                            <div class="empty-state">Classic ML results will appear here</div>
-                        </div>
-                        <button class="ctrl-btn" onclick="app.compareAIvsClassic()" style="width:100%; margin-top:8px;">Compare AI vs Classic</button>
-                    </div>
-
-                    <!-- Channel Selector -->
-                    <div class="panel" id="chSelectorPanel">
-                        <div class="panel-title">📡 EEG Channels</div>
-                        <div class="ctrl-bar" style="margin-bottom:8px;">
-                            <button class="ctrl-btn" onclick="app.selectAllChannels(true)">All</button>
-                            <button class="ctrl-btn" onclick="app.selectAllChannels(false)">None</button>
-                        </div>
-                        <div class="ch-list" id="chList"></div>
-                    </div>
-
-                    <!-- Synchronization Matrix -->
-                    <div class="panel">
-                        <div class="panel-title">🔄 Channel Synchronization</div>
-                        <div id="syncMatrixPlot" style="height:200px;"></div>
-                    </div>
-
-                    <!-- EEG Abnormalities Info -->
-                    <div class="panel">
-                        <div class="panel-title">⚠️ EEG Abnormalities</div>
-                        <div class="instruction-text">
-                            <p><span class="abnormality-badge badge-normal">Normal</span> Appropriate rhythms</p>
-                            <p><span class="abnormality-badge badge-epilepsy">Epileptiform</span> Spike-wave discharges</p>
-                            <p><span class="abnormality-badge badge-slow">Slow Waves</span> Delta/theta excess</p>
-                            <p><span class="abnormality-badge badge-asymmetry">Asymmetry</span> Hemisphere difference</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="demo-bar">
+            <span>Demo signals:</span>
+            <button class="demo-btn" data-type="normal">Normal</button>
+            <button class="demo-btn" data-type="epilepsy">Epilepsy</button>
+            <button class="demo-btn" data-type="slow">Slow Waves</button>
+            <button class="demo-btn" data-type="asymmetry">Asymmetry</button>
         </div>
+
+        <div class="tabs" id="tabsContainer" style="display:none">
+            <button class="tab-btn active" id="tabChannels">📊 Channels</button>
+            <button class="tab-btn" id="tabXOR">⊕ XOR Graph</button>
+            <button class="tab-btn" id="tabPolar">🌀 Polar</button>
+            <button class="tab-btn" id="tabRecurrence">🔁 Recurrence</button>
+            <button class="tab-btn" id="tabFFT">📈 FFT</button>
+        </div>
+
+        <div id="contentArea"></div>
     </div>
 
+    <!-- Load scripts in correct order -->
     <script src="js/signalParser.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/visualizations.js"></script>

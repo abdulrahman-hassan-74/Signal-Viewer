@@ -1,13 +1,10 @@
-// UI Manager
+// UI Manager - Professional Version
 
 const UIManager = {
-
-    // Colors for channels
     colors: ['#4a9eff', '#ff6b6b', '#51cf66', '#ffd43b', '#ff8787',
              '#69db7e', '#4dabf7', '#ffa94d', '#9775fa', '#ff8c8c',
              '#74c0fc', '#b197fc'],
 
-    // Create channel controls
     createChannelControls: function(channels, visibleChannels, onToggle) {
         const container = document.createElement('div');
         container.className = 'channel-controls';
@@ -34,46 +31,38 @@ const UIManager = {
         return container;
     },
 
-    // Create controls bar
     createControlsBar: function(state, callbacks) {
         const bar = document.createElement('div');
         bar.className = 'controls';
 
-        // Play/Pause button
         const playBtn = document.createElement('button');
         playBtn.id = 'playPauseBtn';
         playBtn.textContent = state.isPlaying ? '⏸ Pause' : '▶ Play';
         playBtn.onclick = (e) => {
             e.preventDefault();
-            console.log('Play button clicked');
             callbacks.onPlayPause();
         };
         bar.appendChild(playBtn);
 
-        // Reset button
         const resetBtn = document.createElement('button');
         resetBtn.id = 'resetBtn';
         resetBtn.textContent = '⏮ Reset';
         resetBtn.onclick = (e) => {
             e.preventDefault();
-            console.log('Reset button clicked');
             callbacks.onReset();
         };
         bar.appendChild(resetBtn);
 
-        // Select All button
         const allBtn = document.createElement('button');
         allBtn.textContent = 'All';
         allBtn.onclick = callbacks.onSelectAll;
         bar.appendChild(allBtn);
 
-        // Clear All button
         const clearBtn = document.createElement('button');
         clearBtn.textContent = 'None';
         clearBtn.onclick = callbacks.onClearAll;
         bar.appendChild(clearBtn);
 
-        // Speed control
         const speedLabel = document.createElement('span');
         speedLabel.style.color = '#8a9ab0';
         speedLabel.textContent = 'Speed:';
@@ -95,7 +84,6 @@ const UIManager = {
         speedValue.id = 'speedValue';
         bar.appendChild(speedValue);
 
-        // Time display
         const timeLabel = document.createElement('span');
         timeLabel.style.color = '#8a9ab0';
         timeLabel.style.marginLeft = '10px';
@@ -106,46 +94,78 @@ const UIManager = {
         return bar;
     },
 
-    // Show loading
     showLoading: function() {
-        document.getElementById('loadingIndicator').style.display = 'flex';
-        document.getElementById('errorMessage').style.display = 'none';
+        const loadingEl = document.getElementById('loadingIndicator');
+        if (loadingEl) {
+            loadingEl.style.display = 'flex';
+        }
+        const overlayEl = document.getElementById('loadingOverlay');
+        if (overlayEl) {
+            overlayEl.classList.add('active');
+        }
+        const errorEl = document.getElementById('errorMessage');
+        if (errorEl) {
+            errorEl.style.display = 'none';
+        }
     },
 
-    // Hide loading
     hideLoading: function() {
-        document.getElementById('loadingIndicator').style.display = 'none';
+        const loadingEl = document.getElementById('loadingIndicator');
+        if (loadingEl) {
+            loadingEl.style.display = 'none';
+        }
+        const overlayEl = document.getElementById('loadingOverlay');
+        if (overlayEl) {
+            overlayEl.classList.remove('active');
+        }
     },
 
-    // Show error
     showError: function(message) {
         const errorEl = document.getElementById('errorMessage');
-        errorEl.textContent = `❌ ${message}`;
-        errorEl.style.display = 'block';
+        if (errorEl) {
+            errorEl.textContent = `❌ ${message}`;
+            errorEl.style.display = 'block';
+            setTimeout(() => {
+                if (errorEl) errorEl.style.display = 'none';
+            }, 5000);
+        } else {
+            alert('Error: ' + message);
+        }
         this.hideLoading();
     },
 
-    // Update speed display
     updateSpeedValue: function(speed) {
         const el = document.getElementById('speedValue');
         if (el) el.textContent = `${speed}x`;
     },
 
-    // Update time display
     updateTimeDisplay: function(time) {
         const el = document.getElementById('timeDisplay');
         if (el) el.textContent = `Time: ${time.toFixed(1)}s`;
     },
 
-    // Show notification
     showNotification: function(message, type = 'info') {
+        const container = document.getElementById('notifContainer');
+        if (!container) {
+            console.log(`[${type}] ${message}`);
+            return;
+        }
+
         const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
+        notification.className = `notif-item notif-${type}`;
+
+        let bgColor;
+        switch(type) {
+            case 'success': bgColor = '#10b981'; break;
+            case 'error': bgColor = '#ef4444'; break;
+            default: bgColor = '#3b82f6';
+        }
+
         notification.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
-            background: ${type === 'success' ? '#51cf66' : type === 'error' ? '#ff6b6b' : '#4a9eff'};
+            background: ${bgColor};
             color: white;
             padding: 12px 24px;
             border-radius: 8px;
@@ -155,11 +175,37 @@ const UIManager = {
         `;
         notification.textContent = message;
 
-        document.body.appendChild(notification);
+        container.appendChild(notification);
 
         setTimeout(() => {
             notification.style.animation = 'slideOut 0.3s ease';
-            setTimeout(() => notification.remove(), 300);
+            setTimeout(() => {
+                if (notification.parentNode) notification.remove();
+            }, 300);
         }, 3000);
+    },
+
+    updateModelStatus: function(loaded, type = 'ECG') {
+        const statusEl = document.getElementById('modelStatus');
+        if (statusEl) {
+            if (loaded) {
+                statusEl.textContent = `✅ Real ${type} Model Loaded`;
+                statusEl.style.background = 'rgba(16, 185, 129, 0.2)';
+                statusEl.style.color = '#10b981';
+                statusEl.style.border = '1px solid #10b981';
+            } else {
+                statusEl.textContent = '⚠️ Using Fallback Mode';
+                statusEl.style.background = 'rgba(245, 158, 11, 0.2)';
+                statusEl.style.color = '#f59e0b';
+                statusEl.style.border = '1px solid #f59e0b';
+            }
+        }
+    },
+
+    updateChannelCount: function(visible, total) {
+        const titleSpan = document.querySelector('.plot-title span');
+        if (titleSpan) {
+            titleSpan.innerHTML = `<span class="color-dot" style="background: #4a9eff"></span> MULTI-CHANNEL DISPLAY (${visible}/${total})`;
+        }
     }
 };
