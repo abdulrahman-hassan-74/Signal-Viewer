@@ -10,6 +10,8 @@ import base64
 import io
 import logging
 import os
+import tensorflow as tf
+import librosa
 
 try:
     import soundfile as sf
@@ -25,58 +27,68 @@ class AcousticAnalyzer:
     """Acoustic signal processing for Doppler and vehicle detection"""
 
     def __init__(self):
-        self.sound_speed = 343  # m/s at 20°C
-        self.fs = 44100  # Default sample rate
+        self.sound_speed = 343
+        self.fs = 44100
+
+        model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "drone_model.h5")
+        print(f"Looking for model at: {model_path}")
+        print(f"File exists: {os.path.exists(model_path)}")
+        
+        try:
+            self.model = tf.keras.models.load_model(model_path)
+            print("Model loaded successfully!")
+        except Exception as e:
+            self.model = None
+            print(f"Model failed to load: {e}")
+            
 
     def generate_doppler_sound(self, frequency=440, velocity=30, duration=5):
         """
-        Generate Doppler effect sound
-        f_observed = f_source * (v_sound / (v_sound ± v_source))
+        Generate realistic Doppler effect sound using continuous radial velocity.
         """
         try:
             fs = self.fs
-            t = np.linspace(0, duration, int(fs * duration))
+            v = self.sound_speed
 
-            # Car position: moving from -50m to +50m
-            car_position = velocity * (t - duration / 2)
+            if abs(velocity) >= v:
+                raise ValueError("Velocity must be less than sound speed.")
 
-            # Distance from observer at origin
-            distance = np.abs(car_position)
+            # Time centered at zero (car passes at t = 0)
+            t = np.linspace(-duration/2, duration/2, int(fs * duration))
 
-            # Time delay (not used in generation, but for reference)
-            time_delay = distance / self.sound_speed
+            # Car horizontal motion
+            x = velocity * t
 
-            # Doppler shift factor
-            # Approaching: f_obs = f * (v_sound / (v_sound - v_source))
-            # Receding: f_obs = f * (v_sound / (v_sound + v_source))
-            doppler_factor = np.ones_like(t)
+            # Closest perpendicular distance to observer
+            d = 2.0  # meters (small value = stronger Doppler effect)
 
-            # Approaching phase (car_position < 0)
-            approaching = car_position < 0
-            doppler_factor[approaching] = self.sound_speed / (self.sound_speed - velocity)
+            # Distance from observer
+            r = np.sqrt(x**2 + d**2)
 
-            # Receding phase (car_position > 0)
-            receding = car_position > 0
-            doppler_factor[receding] = self.sound_speed / (self.sound_speed + velocity)
+            # Radial velocity (smooth transition from negative to positive)
+            v_r = velocity * (x / r)
 
-            # Generate sound with varying frequency
-            instantaneous_freq = frequency * doppler_factor
+            # Continuous Doppler formula
+            instantaneous_freq = frequency * (v / (v - v_r))
 
-            # Integrate frequency to get phase
+            # Integrate frequency to phase
             phase = 2 * np.pi * np.cumsum(instantaneous_freq) / fs
-            sound = 0.5 * np.sin(phase)
+            sound = np.sin(phase)
 
-            # Apply amplitude envelope (fade in/out)
-            envelope = np.ones_like(t)
-            envelope[:int(fs * 0.1)] = np.linspace(0, 1, int(fs * 0.1))
-            envelope[-int(fs * 0.1):] = np.linspace(1, 0, int(fs * 0.1))
+            # Amplitude decay with distance (realistic loudness)
+            amplitude = 1 / r
+            amplitude /= np.max(amplitude)
+            sound *= amplitude
+
+            # Fade in/out to prevent click
+            fade = int(fs * 0.05)
+            envelope = np.ones_like(sound)
+            envelope[:fade] = np.linspace(0, 1, fade)
+            envelope[-fade:] = np.linspace(1, 0, fade)
             sound *= envelope
 
-            # Add some noise for realism
-            sound += 0.01 * np.random.randn(len(sound))
-
             # Normalize
-            sound = sound / np.max(np.abs(sound))
+            sound /= np.max(np.abs(sound))
 
             # Convert to WAV base64
             if HAS_SOUNDFILE:
@@ -84,12 +96,11 @@ class AcousticAnalyzer:
                 sf.write(buffer, sound, fs, format='WAV')
                 audio_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
             else:
-                # Fallback: return numpy array
                 audio_base64 = None
 
-            # Calculate frequency range
-            f_min = frequency * self.sound_speed / (self.sound_speed + velocity)
-            f_max = frequency * self.sound_speed / (self.sound_speed - velocity)
+            # Theoretical min/max observed frequencies
+            f_min = frequency * (v / (v + abs(velocity)))
+            f_max = frequency * (v / (v - abs(velocity)))
 
             return {
                 'audio_base64': audio_base64,
@@ -108,6 +119,7 @@ class AcousticAnalyzer:
         except Exception as e:
             logger.error(f"Doppler generation error: {e}")
             return None
+
 
     def estimate_velocity_from_file(self, filepath, original_freq=440):
         """
@@ -178,111 +190,105 @@ class AcousticAnalyzer:
             logger.error(f"Velocity estimation error: {e}")
             return None
 
-    def detect_drone_from_file(self, filepath):
-        """
-        Detect drone sound vs other sounds
-        Based on spectral signature
-        """
-        try:
-            # Read audio file
-            if HAS_SOUNDFILE:
-                audio_data, fs = sf.read(filepath)
-            else:
-                fs, audio_data = wavfile.read(filepath)
+    # def detect_drone_from_file(self, filepath):
+    #     """
+    #     Detect drone sound using the loaded H5 model
+    #     """
+    #     try:
+    #         if self.model is None:
+    #             return {'detected': False, 'error': 'Model not initialized'}
 
-            # Convert to mono if stereo
-            if len(audio_data.shape) > 1:
-                audio_data = np.mean(audio_data, axis=1)
+    #         # Read audio file
+    #         if HAS_SOUNDFILE:
+    #             audio_data, fs = sf.read(filepath)
+    #         else:
+    #             fs, audio_data = wavfile.read(filepath)
 
-            # Convert to float if needed
-            if audio_data.dtype == np.int16:
-                audio_data = audio_data / 32768.0
+    #         # Convert to mono and normalize
+    #         if len(audio_data.shape) > 1:
+    #             audio_data = np.mean(audio_data, axis=1)
+            
+    #         if audio_data.dtype == np.int16:
+    #             audio_data = audio_data / 32768.0
 
-            # Use middle portion of audio
-            mid_point = len(audio_data) // 2
-            segment = audio_data[mid_point:mid_point + min(5 * fs, len(audio_data) - mid_point)]
+    #         # 1. Extract Features
+    #         # We use your existing extract_features method to get numerical data
+    #         feat = self.extract_features(audio_data, fs)
+            
+    #         # 2. Prepare Input Vector
+    #         # NOTE: The order of these keys MUST match how your model was trained
+    #         input_data = np.array([[
+    #             feat['rms'], 
+    #             feat['zero_crossing_rate'], 
+    #             feat['spectral_centroid'], 
+    #             feat['spectral_spread'],
+    #             feat['band_0_energy'],
+    #             feat['band_1_energy'],
+    #             feat['band_2_energy'],
+    #             feat['band_3_energy']
+    #         ]])
 
-            # Compute FFT
-            fft_vals = np.abs(np.fft.fft(segment))
-            freqs = np.fft.fftfreq(len(segment), 1 / fs)
+    #         # 3. Predict
+    #         prediction = self.model.predict(input_data)
+    #         confidence = float(prediction[0][0])
+    #         is_drone = confidence > 0.5 # Threshold
 
-            # Positive frequencies only
-            pos_mask = freqs > 0
-            freqs = freqs[pos_mask]
-            fft_vals = fft_vals[pos_mask]
+    #         return {
+    #             'detected': bool(is_drone),
+    #             'confidence': float(confidence * 100),
+    #             'drone_type': "Model Identified Drone" if is_drone else "Not a drone",
+    #             'spectral_centroid': feat['spectral_centroid'],
+    #             'spectral_signature': 'Neural Network Analysis'
+    #         }
 
-            # Drone signature: strong harmonics at specific frequencies
-            # Typical drone props: 80-400 Hz fundamental
-            fundamental_range = (freqs > 80) & (freqs < 400)
-            harmonic1_range = (freqs > 160) & (freqs < 800)
-            harmonic2_range = (freqs > 240) & (freqs < 1200)
-            harmonic3_range = (freqs > 320) & (freqs < 1600)
+    #     except Exception as e:
+    #         logger.error(f"Drone detection error: {e}")
+    #         return None
+# import tensorflow as tf
 
-            # Calculate energy in each band
-            fundamental_energy = np.sum(fft_vals[fundamental_range]) if np.any(fundamental_range) else 0
-            harmonic1_energy = np.sum(fft_vals[harmonic1_range]) if np.any(harmonic1_range) else 0
-            harmonic2_energy = np.sum(fft_vals[harmonic2_range]) if np.any(harmonic2_range) else 0
-            harmonic3_energy = np.sum(fft_vals[harmonic3_range]) if np.any(harmonic3_range) else 0
 
-            total_energy = np.sum(fft_vals)
 
-            if total_energy == 0:
-                return {
-                    'detected': False,
-                    'confidence': 0,
-                    'error': 'No signal energy'
-                }
+    def detect_drone_from_file(self, path):
 
-            # Calculate harmonic ratios
-            harmonic_ratio = (harmonic1_energy + harmonic2_energy + harmonic3_energy) / total_energy
-            fundamental_ratio = fundamental_energy / total_energy
+        MAX_LEN = 16000
+        TARGET_SR = 16000
 
-            # Calculate spectral centroid
-            spectral_centroid = np.sum(freqs * fft_vals) / total_energy
+        model = tf.keras.models.load_model('backend/modules/drone_model.h5')
 
-            # Calculate spectral rolloff
-            cumulative_energy = np.cumsum(fft_vals)
-            rolloff_point = np.where(cumulative_energy >= 0.85 * total_energy)[0]
-            spectral_rolloff = freqs[rolloff_point[0]] if len(rolloff_point) > 0 else 0
+        # Load audio (auto converts to mono + resamples)
+        audio, sr = librosa.load(path, sr=TARGET_SR, mono=True)
 
-            # Decision logic for drone
-            # Drones typically have strong fundamental + harmonics
-            is_drone = (harmonic_ratio > 0.25 and
-                        fundamental_ratio > 0.08 and
-                        80 < spectral_centroid < 800)
+        # Fix length
+        if len(audio) > MAX_LEN:
+            audio = audio[:MAX_LEN]
+        else:
+            padding = MAX_LEN - len(audio)
+            audio = np.pad(audio, (0, padding))
 
-            # Confidence calculation
-            confidence = min(1.0, harmonic_ratio * 2 + fundamental_ratio)
+        # Convert to tensor
+        audio = tf.convert_to_tensor(audio, dtype=tf.float32)
 
-            # Determine drone type based on fundamental frequency
-            drone_type = "Unknown"
-            if is_drone:
-                if 80 <= spectral_centroid < 150:
-                    drone_type = "Large Drone (Slow props)"
-                elif 150 <= spectral_centroid < 250:
-                    drone_type = "Medium Drone"
-                elif 250 <= spectral_centroid < 400:
-                    drone_type = "Small Drone (Fast props)"
-                elif 400 <= spectral_centroid < 800:
-                    drone_type = "Very Small Drone / Toy"
+        # FFT
+        fft = tf.signal.rfft(audio)
+        fft = tf.abs(fft)
 
-            return {
-                'detected': bool(is_drone),
-                'confidence': float(confidence * 100),
-                'drone_type': drone_type if is_drone else "Not a drone",
-                'fundamental_freq': float(freqs[np.argmax(fft_vals[fundamental_range])]) if np.any(
-                    fundamental_range) else 0,
-                'spectral_centroid': float(spectral_centroid),
-                'spectral_rolloff': float(spectral_rolloff),
-                'harmonic_ratio': float(harmonic_ratio),
-                'fundamental_ratio': float(fundamental_ratio),
-                'spectral_signature': 'Drone' if is_drone else 'Ambient/Other'
-            }
+        # Add batch dimension
+        fft = tf.expand_dims(fft, axis=0)
 
-        except Exception as e:
-            logger.error(f"Drone detection error: {e}")
-            return None
+        # Predict
+        confidence = model.predict(fft, verbose=0)[0][0]
 
+        is_drone = confidence >= 0.5
+
+        return {
+            'detected': bool(is_drone),
+            'confidence': float(confidence * 100),
+            # 'drone_type': "None",
+            # 'spectral_centroid': "None",
+            # 'spectral_signature': "None"
+        }
+
+            # return prob
     def generate_test_signals(self):
         """Generate test signals for debugging"""
         signals = {}
