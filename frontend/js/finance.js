@@ -8,7 +8,7 @@ const API = 'http://127.0.0.1:5000';
 // ── Ticker definitions per market type ────────────────────────────────────
 const MARKETS = {
     stocks: [
-        { ticker: 'AAPL',  label: 'Apple Inc.' },
+        { ticker: 'GOOGL', label: 'Google Inc.' },
         { ticker: 'TSLA',  label: 'Tesla Inc.' },
     ],
     currencies: [
