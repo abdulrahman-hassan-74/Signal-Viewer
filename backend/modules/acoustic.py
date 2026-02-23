@@ -121,10 +121,11 @@ class AcousticAnalyzer:
             return None
 
 
-    def estimate_velocity_from_file(self, filepath, original_freq=440):
+    def estimate_velocity_from_file(self, filepath):
         """
-        Estimate vehicle velocity from recorded Doppler sound
-        Using spectrogram analysis
+        Estimate vehicle velocity from recorded Doppler sound.
+        The emitted frequency is estimated from the audio itself
+        (peak of spectrogram at moment of closest approach).
         """
         try:
             # Read audio file
@@ -148,42 +149,75 @@ class AcousticAnalyzer:
                 noverlap=min(1024, len(audio_data) // 20)
             )
 
-            # Find max frequency at each time
+            # Find dominant frequency at each time step
             max_freq_idx = np.argmax(Sxx, axis=0)
             max_freq = frequencies[max_freq_idx]
 
-            # Filter outliers
-            max_freq = max_freq[max_freq > 0]
+            # Filter out zero/near-zero frequencies (silence/noise)
+            valid_mask = max_freq > 50  # Hz threshold to ignore noise floor
+            max_freq = max_freq[valid_mask]
+            times = times[valid_mask]
 
             if len(max_freq) < 10:
-                return {
-                    'error': 'Insufficient data for estimation'
-                }
+                return {'error': 'Insufficient data for estimation'}
 
-            # Find where frequency changes
-            freq_ratio = max_freq / original_freq
+            # -------------------------------------------------------
+            # Detect frequency trend: rising = approaching, falling = receding
+            # We split the timeline into first half and second half
+            # The crossover point (min slope) = moment of closest approach
+            # -------------------------------------------------------
+            mid = len(max_freq) // 2
+            first_half = max_freq[:mid]
+            second_half = max_freq[mid:]
 
-            # Estimate velocity from max frequency shift
-            max_shift = np.max(freq_ratio)
-            min_shift = np.min(freq_ratio)
+            freq_approaching = np.mean(first_half)
+            freq_receding = np.mean(second_half)
 
-            # Solve for velocity
-            # f_max/f = v_sound/(v_sound - v) for approaching
-            # f_min/f = v_sound/(v_sound + v) for receding
+            # Determine direction of pass
+            approaching = freq_approaching > freq_receding
 
-            v_approach = self.sound_speed * (1 - 1 / max_shift) if max_shift > 1 else 0
-            v_recede = self.sound_speed * (1 / min_shift - 1) if min_shift < 1 else 0
+            # The emitted frequency is estimated at the transition point
+            # (where Doppler shift is ~0), approximated as the median
+            # of frequencies near the midpoint
+            quarter = len(max_freq) // 4
+            mid_slice = max_freq[mid - quarter // 2: mid + quarter // 2]
+            if len(mid_slice) == 0:
+                mid_slice = max_freq
+            estimated_emitted_freq = float(np.median(mid_slice))
 
-            estimated_velocity = (np.abs(v_approach) + np.abs(v_recede)) / 2
+            # Observed max (approaching) and min (receding) frequencies
+            f_high = float(np.percentile(max_freq, 90))  # approaching peak
+            f_low  = float(np.percentile(max_freq, 10))  # receding trough
+
+            # Guard against division issues
+            if estimated_emitted_freq <= 0 or f_low <= 0:
+                return {'error': 'Could not extract valid frequency data'}
+
+            # -------------------------------------------------------
+            # Doppler equations:
+            #   f_high = f0 * v_sound / (v_sound - v)  →  v = v_sound * (1 - f0/f_high)
+            #   f_low  = f0 * v_sound / (v_sound + v)  →  v = v_sound * (f0/f_low  - 1)
+            # -------------------------------------------------------
+            v_from_high = self.sound_speed * (1 - estimated_emitted_freq / f_high) if f_high > estimated_emitted_freq else 0
+            v_from_low  = self.sound_speed * (estimated_emitted_freq / f_low - 1)  if f_low  < estimated_emitted_freq else 0
+
+            estimated_velocity = (abs(v_from_high) + abs(v_from_low)) / 2
+
+            # Confidence: higher if both halves show clear trend
+            freq_drop = freq_approaching - freq_receding
+            confidence = float(min(0.95, 0.4 + abs(freq_drop) / (estimated_emitted_freq + 1e-6)))
 
             return {
-                'estimated_velocity': float(estimated_velocity),
-                'velocity_approach': float(v_approach),
-                'velocity_recede': float(v_recede),
-                'max_frequency_ratio': float(max_shift),
-                'min_frequency_ratio': float(min_shift),
-                'method': 'Spectrogram Peak Tracking',
-                'confidence': float(0.8 if estimated_velocity > 0 else 0.3)
+                'estimated_velocity_ms':  float(estimated_velocity),
+                'estimated_velocity_kmh': float(estimated_velocity * 3.6),
+                'estimated_emitted_freq': estimated_emitted_freq,
+                'freq_approaching_avg':   float(freq_approaching),
+                'freq_receding_avg':      float(freq_receding),
+                'f_high_percentile':      f_high,
+                'f_low_percentile':       f_low,
+                'direction':              'approaching then receding' if approaching else 'receding (partial pass?)',
+                'method':                 'Doppler Spectrogram — Self-Calibrated',
+                'confidence':             confidence
             }
 
         except Exception as e:
