@@ -253,7 +253,7 @@ class AcousticAnalyzer:
         MAX_LEN = 16000
         TARGET_SR = 16000
 
-        model = tf.keras.models.load_model('backend/modules/drone_model.h5')
+        model = tf.keras.models.load_model('backend/models/drone_model.h5')
 
         # Load audio (auto converts to mono + resamples)
         audio, sr = librosa.load(path, sr=TARGET_SR, mono=True)
