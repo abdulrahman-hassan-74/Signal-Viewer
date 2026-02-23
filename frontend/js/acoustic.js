@@ -130,21 +130,26 @@ class AcousticViewer {
     async estimateVelocity() {
         const file = document.getElementById('dopplerFile').files[0];
         if (!file) { this.showNotification('Please select an audio file', 'error'); return; }
-        const originalFreq = parseFloat(document.getElementById('estimateFreq').value);
+        
         this.showLoading('estimationLoading');
         try {
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('original_freq', originalFreq);
-            const response = await fetch(`${this.API_URL}/acoustic/doppler/estimate`, { method: 'POST', body: formData });
+            // REMOVED: formData.append('original_freq', originalFreq);
+
+            const response = await fetch(`${this.API_URL}/acoustic/doppler/estimate`, { 
+                method: 'POST', 
+                body: formData 
+            });
             const result = await response.json();
             if (result.status === 'success') this.displayVelocityEstimation(result.estimation);
+            else this.showNotification(result.error, 'error');
         } catch (err) {
             this.showNotification('Failed to estimate velocity: ' + err.message, 'error');
         } finally {
             this.hideLoading('estimationLoading');
         }
-    }
+    }   
 
     displayVelocityEstimation(e) {
         const resultsDiv = document.getElementById('estimationResults');
@@ -153,21 +158,21 @@ class AcousticViewer {
             <div style="background: #0f1422; padding: 20px; border-radius: 8px; margin-top: 20px;">
                 <h3 style="color: #4a9eff; margin-bottom: 15px;">Velocity Estimation Results</h3>
                 <div style="font-size: 2rem; text-align: center; margin-bottom: 20px; color: #4a9eff;">
-                    ${Number(e.estimated_velocity || 0).toFixed(1)} <span style="font-size: 1rem; color: #8a9ab0;">m/s</span>
+                    ${Number(e.estimated_velocity_ms || 0).toFixed(1)} <span style="font-size: 1rem; color: #8a9ab0;">m/s</span>
+                    <br><span style="font-size: 1.2rem; color: #51cf66;">(${Number(e.estimated_velocity_kmh || 0).toFixed(1)} km/h)</span>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div><small style="color: #8a9ab0;">Approach Velocity</small><br>
-                        <strong>${Number(e.velocity_approach || 0).toFixed(1)} m/s</strong></div>
-                    <div><small style="color: #8a9ab0;">Recede Velocity</small><br>
-                        <strong>${Number(e.velocity_recede || 0).toFixed(1)} m/s</strong></div>
-                    <div><small style="color: #8a9ab0;">Max Freq Ratio</small><br>
-                        <strong>${Number(e.max_frequency_ratio || 0).toFixed(3)}</strong></div>
-                    <div><small style="color: #8a9ab0;">Min Freq Ratio</small><br>
-                        <strong>${Number(e.min_frequency_ratio || 0).toFixed(3)}</strong></div>
+                    <div><small style="color: #8a9ab0;">Detected Emitted Freq</small><br>
+                        <strong>${Number(e.estimated_emitted_freq || 0).toFixed(1)} Hz</strong></div>
+                    <div><small style="color: #8a9ab0;">Direction</small><br>
+                        <strong>${e.direction || 'N/A'}</strong></div>
+                    <div><small style="color: #8a9ab0;">Peak (Approach)</small><br>
+                        <strong>${Number(e.f_high_percentile || 0).toFixed(1)} Hz</strong></div>
+                    <div><small style="color: #8a9ab0;">Trough (Recede)</small><br>
+                        <strong>${Number(e.f_low_percentile || 0).toFixed(1)} Hz</strong></div>
                 </div>
                 <div style="margin-top: 15px; padding: 10px; background: rgba(74,158,255,0.1); border-radius: 5px;">
-                    <small style="color: #8a9ab0;">Method:</small><br>
-                    <strong>${e.method || 'N/A'}</strong>
+                    <small style="color: #8a9ab0;">Method: ${e.method}</small>
                     <div style="margin-top: 5px;">Confidence: ${Number((e.confidence || 0) * 100).toFixed(1)}%</div>
                 </div>
             </div>`;
@@ -208,43 +213,27 @@ class AcousticViewer {
     }
 
     displayDroneDetection(detection) {
-        const resultsDiv = document.getElementById('droneResults');
-        if (!resultsDiv) return;
+            const resultsDiv = document.getElementById('droneResults');
+            if (!resultsDiv) return;
 
-        // Safe fallbacks so toFixed never crashes on undefined
-        const isDrone    = detection.detected          === true;
-        const confidence = Number(detection.confidence        ?? 0);
-        // const centroid   = Number(detection.spectral_centroid ?? 0);
-        const droneType  = detection.drone_type         ?? (isDrone ? 'Drone Detected' : 'Not a Drone');
-        // const signature  = detection.spectral_signature ?? 'N/A';
-        const errorMsg   = detection.error              ?? null;
+            // Determine if it's a drone based on the boolean from the backend
+            const isDrone = detection.detected === true;
+            
+            // Styling based on detection
+            const color = isDrone ? '#51cf66' : '#ff6b6b';
+            const label = isDrone ? 'DRONE DETECTED' : 'NOT A DRONE';
+            const icon  = isDrone ? '✅' : '❌';
 
-        const color   = isDrone ? '#51cf66' : '#ff6b6b';
-        const bgColor = isDrone ? 'rgba(81,207,102,0.1)' : 'rgba(255,107,107,0.1)';
-        const errorBanner = errorMsg
-            ? `<div style="margin-top:10px;padding:8px 12px;background:rgba(255,193,7,0.1);border:1px solid #ffc107;border-radius:5px;color:#ffc107;font-size:0.85rem;">⚠️ ${errorMsg}</div>`
-            : '';
-
-        resultsDiv.innerHTML = `
-            <div style="background: #0f1422; padding: 20px; border-radius: 8px; margin-top: 20px;">
-                <h3 style="color: #4a9eff; margin-bottom: 15px;">Drone Detection Results</h3>
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <div style="font-size: 3rem; color: ${color};">${isDrone ? '✅' : '❌'}</div>
-                    <div style="font-size: 1.5rem; color: ${color};">${droneType}</div>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div><small style="color: #8a9ab0;">Confidence</small><br>
-                        <strong>${confidence.toFixed(1)}%</strong></div>
-                    <div><small style="color: #8a9ab0;">Spectral Centroid</small><br>
-                        <strong>${centroid.toFixed(1)} Hz</strong></div>
-                </div>
-                <div style="margin-top: 15px; padding: 10px; background: ${bgColor}; border: 1px solid ${color}; border-radius: 5px;">
-                    <strong style="color: ${color};">${signature}</strong>
-                </div>
-                ${errorBanner}
-            </div>`;
-    }
-
+            resultsDiv.innerHTML = `
+                <div style="background: #0f1422; padding: 30px; border-radius: 8px; margin-top: 20px; border: 2px solid ${color};">
+                    <div style="text-align: center;">
+                        <div style="font-size: 4rem; margin-bottom: 10px;">${icon}</div>
+                        <div style="font-size: 2rem; font-weight: bold; color: ${color}; letter-spacing: 2px;">
+                            ${label}
+                        </div>
+                    </div>
+                </div>`;
+        }
     handleDopplerFile(file) {
         const label = document.querySelector('label[for="dopplerFile"]');
         if (label) label.innerHTML = `📁 Selected: ${file.name}`;
