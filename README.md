@@ -24,7 +24,8 @@ Signal Viewer Hub is a comprehensive multi-domain signal analysis platform that 
 - **Financial Signals**: Stocks, currencies, and commodities analysis
 - **Microbiome Signals**: Bacterial abundance and disease profiling
 
-The platform features multiple viewer types with interactive controls and integrates real AI models for accurate abnormality detection.
+The platform features multiple viewer types with interactive controls and integrates real AI models for accurate abnormality detection. Built as a team project for the Digital Signal Processing (DSP) course — Faculty of Engineering Cairo University,Systems and Biomedical Engineering Department.
+.
 
 ---
 
