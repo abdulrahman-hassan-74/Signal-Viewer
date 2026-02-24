@@ -762,6 +762,185 @@ frontend/
 | Yahoo Finance fails | Network / rate limit | App falls back to CSV files in `backend/data/` |
 | Chart not rendering | Backend not running | Start with `python main.py` on port 5000 |
 
+---
+# 🔊 Acoustic Signal Analysis Module
+
+A Python module for real-time acoustic signal processing, featuring Doppler effect simulation, vehicle velocity estimation, and AI-powered drone detection.
+
+---
+
+## Features
+
+- **Doppler Effect Simulation** — Generates realistic audio of a vehicle passing an observer, with physically accurate frequency shifts and distance-based amplitude decay.
+- **Velocity Estimation** — Analyzes a recorded audio file and estimates vehicle speed using spectrogram-based Doppler analysis, no prior knowledge of the emitted frequency required.
+- **Drone Detection** — Identifies drone audio signatures using a trained TensorFlow/Keras neural network model via FFT-based feature extraction.
+- **Test Signal Generation** — Produces synthetic drone and car-pass signals for debugging and benchmarking.
+- **Acoustic Feature Extraction** — Extracts RMS, zero-crossing rate, spectral centroid, spectral spread, and band energies from any audio signal.
+
+---
+
+## Requirements
+
+Install dependencies via pip:
+
+```bash
+pip install numpy scipy tensorflow librosa soundfile
+```
+
+| Package | Purpose |
+|---|---|
+| `numpy` | Array math and signal processing |
+| `scipy` | Spectrogram computation, WAV I/O |
+| `tensorflow` | Drone detection neural network |
+| `librosa` | Audio loading and resampling |
+| `soundfile` | High-quality WAV encoding *(optional but recommended)* |
+
+> If `soundfile` is not installed, WAV export in `generate_doppler_sound` will be disabled (`audio_base64` returns `None`).
+
+---
+
+## Setup
+
+1. Clone or copy `acoustic.py` into your project.
+2. Place your trained drone detection model at:
+   ```
+   backend/models/drone_model.h5
+   ```
+   The module also checks for `drone_model.h5` in the same directory as `acoustic.py` on initialization.
+
+3. Instantiate the analyzer:
+   ```python
+   from acoustic import AcousticAnalyzer
+   analyzer = AcousticAnalyzer()
+   ```
+
+---
+
+## Usage
+
+### Generate a Doppler Sound
+
+Simulates a vehicle passing the observer at a given speed.
+
+```python
+result = analyzer.generate_doppler_sound(frequency=440, velocity=30, duration=5)
+
+# result keys:
+# audio_base64      — WAV file encoded as base64 string (if soundfile is available)
+# sample_rate       — Audio sample rate (44100 Hz)
+# duration          — Duration in seconds
+# sound_array       — Raw audio samples as a list (fallback if soundfile unavailable)
+# frequency_range   — {'min': ..., 'max': ..., 'original': ...}
+# velocity_used     — Velocity passed in (m/s)
+# doppler_shift     — Frequency difference between approaching and receding (Hz)
+```
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `frequency` | int/float | 440 | Emitted sound frequency in Hz |
+| `velocity` | float | 30 | Vehicle speed in m/s (must be < 343 m/s) |
+| `duration` | float | 5 | Duration of audio clip in seconds |
+
+---
+
+### Estimate Vehicle Velocity from Audio File
+
+Analyzes a recorded audio file and estimates the vehicle's speed using Doppler frequency analysis.
+
+```python
+result = analyzer.estimate_velocity_from_file('path/to/audio.wav')
+
+# result keys:
+# estimated_velocity_ms   — Speed in meters per second
+# estimated_velocity_kmh  — Speed in kilometers per hour
+# estimated_emitted_freq  — Self-calibrated emitted frequency (Hz)
+# freq_approaching_avg    — Average frequency in first half of recording
+# freq_receding_avg       — Average frequency in second half
+# f_high_percentile       — 90th percentile frequency (approaching peak)
+# f_low_percentile        — 10th percentile frequency (receding trough)
+# direction               — 'approaching then receding' or 'receding (partial pass?)'
+# method                  — Analysis method used
+# confidence              — Confidence score (0.0 – 0.95)
+```
+
+The method is **self-calibrating** — it estimates the original emitted frequency from the audio itself (at the moment of closest approach), so no prior knowledge of the vehicle's sound is needed.
+
+---
+
+### Detect Drone from Audio File
+
+Runs the audio through the trained neural network and returns a detection result.
+
+```python
+result = analyzer.detect_drone_from_file('path/to/audio.wav')
+
+# result keys:
+# detected    — True / False
+# confidence  — Confidence percentage (0–100)
+```
+
+The model processes audio at **16,000 Hz**, fixes input length to **16,000 samples (1 second)**, and uses an **FFT magnitude spectrum** as the input feature vector.
+
+> Make sure `backend/models/drone_model.h5` exists and matches the expected input shape before calling this method.
+
+---
+
+### Extract Acoustic Features
+
+```python
+import numpy as np
+audio_data = np.random.randn(44100)  # example: 1 second of noise
+features = analyzer.extract_features(audio_data, fs=44100)
+
+# features keys:
+# rms, zero_crossing_rate, spectral_centroid,
+# spectral_spread, band_0_energy, band_1_energy,
+# band_2_energy, band_3_energy
+```
+
+| Feature | Description |
+|---|---|
+| `rms` | Root mean square energy |
+| `zero_crossing_rate` | Rate of sign changes per sample |
+| `spectral_centroid` | Weighted mean frequency (Hz) |
+| `spectral_spread` | Variance around spectral centroid |
+| `band_N_energy` | Energy in frequency bands: 0–300, 300–800, 800–2000, 2000–4000 Hz |
+
+---
+
+### Generate Test Signals
+
+```python
+signals = analyzer.generate_test_signals()
+# signals['drone']    — synthetic drone audio (list)
+# signals['car_pass'] — Doppler car-pass audio (list)
+```
+
+---
+
+## Physics Reference
+
+The Doppler effect formula used:
+
+$$f_{observed} = f_0 \cdot \frac{v_{sound}}{v_{sound} - v_{radial}}$$
+
+Where $v_{radial}$ is the component of the vehicle's velocity directed toward the observer, computed continuously along the vehicle's trajectory.
+
+Velocity is estimated inversely from observed high/low frequencies:
+
+$$v = \frac{v_{high} + v_{low}}{2}, \quad v_{high} = c\left(1 - \frac{f_0}{f_{high}}\right), \quad v_{low} = c\left(\frac{f_0}{f_{low}} - 1\right)$$
+
+---
+
+## Notes
+
+- Sound speed is fixed at **343 m/s** (dry air at ~20°C).
+- The observer is placed **2 meters** perpendicular to the vehicle's path in Doppler simulations.
+- The module logs errors via Python's standard `logging` library — configure a handler to capture them.
+- The commented-out `detect_drone_from_file` variant in the source uses hand-crafted features instead of FFT; it can be re-enabled if a compatible model is available.
+
+
+
 ## Support
 - **Email**: alaaessam446@gmail.com
 - **Email**: abdullahgamil285@gmail.com
