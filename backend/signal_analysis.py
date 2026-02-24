@@ -1,7 +1,6 @@
 """
 Signal Analysis Module
 Advanced signal processing for all graph types
-XOR Graph, Polar Plot, Recurrence Plot, FFT, Wavelet
 """
 
 import numpy as np
@@ -35,10 +34,14 @@ class SignalAnalysis:
             if n_channels == 1:
                 return [[1.0]]
 
-            data_centered = data - np.mean(data, axis=1, keepdims=True)
+            # Use a subset for performance
             max_samples = min(5000, data.shape[1])
-            data_centered = data_centered[:, :max_samples]
+            data_subset = data[:, :max_samples]
 
+            # Remove mean
+            data_centered = data_subset - np.mean(data_subset, axis=1, keepdims=True)
+
+            # Compute correlation matrix
             corr_matrix = np.corrcoef(data_centered)
             corr_matrix = np.nan_to_num(corr_matrix, nan=0.0)
             corr_matrix = np.clip(corr_matrix, -1, 1)
@@ -90,165 +93,311 @@ class SignalAnalysis:
             logger.error(f"Frequency info error: {str(e)}")
             return {}
 
-    def compute_xor_graph(self, signal_data, chunk_size=250, channel_idx=0):
+    def compute_xor_graph(self, signal_data, chunk_size=250, channel_idx=0, colormap='Hot'):
         """
-        XOR graph between consecutive chunks
-        If chunks are identical, they are erased (XOR = 0)
+        XOR graph where signal is divided into time chunks.
+        Shows XOR (absolute difference) between consecutive chunks.
+        If chunks are identical, the result is zero (erased).
         """
         try:
             data = np.array(signal_data['data'])
+
+            # Check if channel_idx is valid
+            if channel_idx >= len(data):
+                channel_idx = 0
+
             channel = data[channel_idx]
             fs = signal_data.get('sampling_rate', 250)
 
+            # Ensure chunk_size is valid
+            if chunk_size <= 0:
+                chunk_size = 250
+
+            # Ensure we have enough data
+            if len(channel) < chunk_size * 2:
+                return {
+                    'error': f'Signal too short for XOR graph. Need at least {chunk_size*2} samples, got {len(channel)}',
+                    'xor_matrix': [],
+                    'time_axis': [],
+                    'chunk_labels': [],
+                    'avg_xor': [],
+                    'n_chunks': 0,
+                    'channel': signal_data['channels'][channel_idx] if channel_idx < len(signal_data['channels']) else f'CH{channel_idx+1}',
+                    'chunk_size': chunk_size,
+                    'chunk_duration': chunk_size / fs,
+                    'colormap': colormap
+                }
+
+            # Calculate number of complete chunks
             n_chunks = len(channel) // chunk_size
             if n_chunks < 2:
-                return {'error': 'Need at least 2 chunks'}
+                return {
+                    'error': f'Need at least 2 chunks, got {n_chunks}',
+                    'xor_matrix': [],
+                    'time_axis': [],
+                    'chunk_labels': [],
+                    'avg_xor': [],
+                    'n_chunks': n_chunks,
+                    'channel': signal_data['channels'][channel_idx] if channel_idx < len(signal_data['channels']) else f'CH{channel_idx+1}',
+                    'chunk_size': chunk_size,
+                    'chunk_duration': chunk_size / fs,
+                    'colormap': colormap
+                }
 
+            # Extract chunks
             chunks = channel[:n_chunks * chunk_size].reshape(n_chunks, chunk_size)
 
-            xor_results = []
-            time_indices = []
-            similarities = []
+            # Create time axis for a single chunk
+            time_axis = np.arange(chunk_size) / fs
 
-            for i in range(1, n_chunks):
-                xor_diff = np.abs(chunks[i] - chunks[i-1])
-                xor_results.append(xor_diff.tolist())
-                time_indices.append(i * chunk_size / fs)
-
-                max_val = np.max(np.abs(chunks[i])) + np.max(np.abs(chunks[i-1]))
-                if max_val > 0:
-                    similarity = 1 - (np.sum(xor_diff) / (chunk_size * max_val))
-                else:
-                    similarity = 1
-                similarities.append(float(similarity))
-
-            avg_xor = [np.mean(chunk) for chunk in xor_results] if xor_results else []
-
-            # Find identical chunks (similarity > 0.95)
+            # Compute XOR between consecutive chunks
+            xor_matrix = []  # For heatmap: rows = chunk pairs, columns = time samples
+            avg_xor = []
             identical_pairs = []
-            for i, sim in enumerate(similarities):
-                if sim > 0.95:
+
+            for i in range(n_chunks - 1):
+                # XOR between current chunk and next chunk
+                xor_result = np.abs(chunks[i] - chunks[i+1])
+
+                # Check if chunks are identical (all zeros after XOR)
+                if np.all(xor_result < 1e-6):
                     identical_pairs.append({
                         'chunk1': i,
                         'chunk2': i+1,
-                        'time': time_indices[i],
-                        'similarity': sim
+                        'time': (i * chunk_size + chunk_size/2) / fs
                     })
 
+                xor_matrix.append(xor_result.tolist())
+                avg_xor.append(float(np.mean(xor_result)))
+
+            # Create chunk labels for y-axis
+            chunk_labels = [f'Chunk {i+1} vs {i}' for i in range(n_chunks - 1)]
+
             return {
-                'xor_series': xor_results,
-                'xor_data': xor_results,
-                'time_indices': time_indices,
+                'xor_matrix': xor_matrix,
+                'time_axis': time_axis.tolist(),
+                'chunk_labels': chunk_labels,
                 'avg_xor': avg_xor,
-                'similarities': similarities,
                 'identical_pairs': identical_pairs,
-                'chunk_size': chunk_size,
-                'chunk_size_samp': chunk_size,
-                'chunk_size_sec': chunk_size / fs,
-                'chunk_duration': chunk_size / fs,
-                'n_chunks': len(xor_results),
+                'n_chunks': len(xor_matrix),
                 'channel': signal_data['channels'][channel_idx] if channel_idx < len(signal_data['channels']) else f'CH{channel_idx+1}',
-                'interpretation': 'Zero values = identical chunks (erased)',
-                'time_axis': np.arange(chunk_size) / fs
+                'chunk_size': chunk_size,
+                'chunk_duration': chunk_size / fs,
+                'colormap': colormap,
+                'interpretation': 'XOR shows differences between consecutive chunks. Zero (dark) = identical chunks (erased)',
+                'fs': fs
             }
 
         except Exception as e:
             logger.error(f"XOR error: {e}")
-            return {'error': str(e)}
+            return {
+                'error': str(e),
+                'xor_matrix': [],
+                'time_axis': [],
+                'chunk_labels': [],
+                'avg_xor': [],
+                'n_chunks': 0
+            }
 
-    def compute_polar_plot(self, signal_data, channel_idx=0, period=100, mode='cumulative'):
+    def compute_polar_plot(self, signal_data, channel_idx=0, period=100, mode='cumulative', max_points=2000):
         """
-        Polar plot (r = magnitude, θ = time mod period)
-        Two modes: cumulative (all history) or sliding (latest only)
+        Polar graph where r = signal magnitude, θ = time
+        Two modes:
+        - sliding: Latest fixed time (old parts disappear) - looks like moving circular pulse
+        - cumulative: All history remains - traces overlapping circular patterns showing periodicity
         """
         try:
             data = np.array(signal_data['data'])
+
+            if channel_idx >= len(data):
+                channel_idx = 0
+
             channel = data[channel_idx]
             fs = signal_data.get('sampling_rate', 250)
 
-            # Normalize to [0, 5] range for better visualization
-            channel_min = np.min(channel)
-            channel_max = np.max(channel)
-            if channel_max > channel_min:
-                channel_norm = (channel - channel_min) / (channel_max - channel_min) * 4 + 1
-            else:
-                channel_norm = np.ones_like(channel) * 3
+            # Limit points for performance but keep enough for smooth animation
+            if len(channel) > max_points:
+                step = len(channel) // max_points
+                channel = channel[::step]
 
             if mode == 'sliding':
-                channel_norm = channel_norm[-period*5:]
+                # Latest fixed time - keep only last 'period * 10' samples (10 cycles)
+                # This creates a moving circular pulse effect
+                channel = channel[-period*10:]
 
-            theta = []
-            r_vals = []
+            # Normalize magnitude to range [0, 10] for better visualization
+            min_val = np.min(channel)
+            max_val = np.max(channel)
+            if max_val > min_val:
+                # Normalize to [0, 10]
+                r_vals = 10 * (channel - min_val) / (max_val - min_val)
+            else:
+                r_vals = np.ones_like(channel) * 5
 
-            for i in range(len(channel_norm)):
-                # Convert to degrees for Plotly
-                angle = (360 * (i % period)) / period
-                theta.append(angle)
-                r_vals.append(channel_norm[i])
+            # For cumulative mode, we want to see overlapping patterns
+            # For sliding mode, we want a clean circular pulse
+            if mode == 'sliding':
+                # For sliding mode, make points more visible
+                r_vals = r_vals + 1  # Offset from center
 
-            # Calculate periodicity
-            periodicity = self._calculate_periodicity(channel_norm, period)
+            # Compute theta (angle) based on sample index (time)
+            # This maps time to angle around the circle
+            theta_deg = []  # Store in degrees for frontend
+
+            for i in range(len(channel)):
+                # Map sample index to angle (0 to 360 degrees)
+                # This creates a spiral effect where time progresses around the circle
+                angle_deg = (360 * (i % period)) / period
+                theta_deg.append(angle_deg)
+
+            # Calculate periodicity score using autocorrelation
+            periodicity = self._calculate_periodicity(channel, period)
+
+            # For cumulative mode, we'll also create a trace of the average pattern
+            avg_pattern = None
+            if mode == 'cumulative' and len(channel) > period * 2:
+                # Calculate average pattern over all cycles
+                n_cycles = len(channel) // period
+                avg_r = np.zeros(period)
+                count = np.zeros(period)
+
+                for cycle in range(n_cycles):
+                    start = cycle * period
+                    end = min(start + period, len(channel))
+                    for j in range(start, end):
+                        idx_in_cycle = j % period
+                        avg_r[idx_in_cycle] += r_vals[j]
+                        count[idx_in_cycle] += 1
+
+                # Average where we have data
+                for j in range(period):
+                    if count[j] > 0:
+                        avg_r[j] /= count[j]
+
+                avg_theta = [(360 * j) / period for j in range(period)]
+                avg_pattern = {
+                    'theta': avg_theta,
+                    'r': avg_r.tolist()
+                }
 
             return {
-                'theta': theta,
-                'r': r_vals,
+                'theta': theta_deg,
+                'r': r_vals.tolist(),
+                'avg_pattern': avg_pattern,
                 'channel': signal_data['channels'][channel_idx] if channel_idx < len(signal_data['channels']) else f'CH{channel_idx+1}',
                 'period': period,
                 'period_seconds': period / fs,
                 'mode': mode,
-                'n_points': len(theta),
+                'n_points': len(theta_deg),
                 'periodicity': float(periodicity),
-                'interpretation': 'Concentric circles = perfect periodicity, Scatter = irregular'
+                'interpretation': 'Sliding mode: moving circular pulse. Cumulative mode: overlapping patterns show periodicity',
+                'fs': fs
             }
 
         except Exception as e:
             logger.error(f"Polar error: {e}")
             return {'error': str(e)}
 
-    def compute_recurrence_plot(self, signal_data, ch_x=0, ch_y=1, threshold=0.5):
+    def compute_recurrence_plot(self, signal_data, ch_x=0, ch_y=1, threshold=0.3, max_points=300):
         """
-        Recurrence plot between two channels (cumulative scatter plot)
+        Recurrence graph - Cumulative scatter plot comparing two channels.
+        Points are plotted when values from chX and chY are similar.
+        Diagonal lines indicate periodic patterns (like regular heartbeat).
         """
         try:
             data = np.array(signal_data['data'])
 
             if ch_x >= len(data) or ch_y >= len(data):
-                return {'error': 'Channel index out of range'}
+                ch_x = 0
+                ch_y = min(1, len(data)-1)
 
             sig_x = data[ch_x]
             sig_y = data[ch_y]
 
-            # Normalize
-            sig_x = (sig_x - np.mean(sig_x)) / (np.std(sig_x) + 1e-10)
-            sig_y = (sig_y - np.mean(sig_y)) / (np.std(sig_y) + 1e-10)
+            # Normalize both signals to [0, 1] for comparison
+            min_x, max_x = np.min(sig_x), np.max(sig_x)
+            min_y, max_y = np.min(sig_y), np.max(sig_y)
 
-            # Downsample for performance
-            max_points = 150
-            step_x = max(1, len(sig_x) // max_points)
-            step_y = max(1, len(sig_y) // max_points)
+            if max_x > min_x:
+                norm_x = (sig_x - min_x) / (max_x - min_x)
+            else:
+                norm_x = np.zeros_like(sig_x)
 
-            sig_x_ds = sig_x[::step_x][:max_points]
-            sig_y_ds = sig_y[::step_y][:max_points]
+            if max_y > min_y:
+                norm_y = (sig_y - min_y) / (max_y - min_y)
+            else:
+                norm_y = np.zeros_like(sig_y)
 
-            # Compute recurrence matrix
-            n_x, n_y = len(sig_x_ds), len(sig_y_ds)
-            recurrence = np.zeros((n_x, n_y))
+            # Downsample for performance but keep enough for pattern detection
+            if len(norm_x) > max_points:
+                step = len(norm_x) // max_points
+                norm_x = norm_x[::step]
+                norm_y = norm_y[::step]
 
-            for i in range(n_x):
-                for j in range(n_y):
-                    if np.abs(sig_x_ds[i] - sig_y_ds[j]) < threshold:
-                        recurrence[i, j] = 1
+            # Create recurrence scatter plot (cumulative)
+            # For each pair of points (i,j), plot if |x[i] - y[j]| < threshold
+            x_points = []
+            y_points = []
+            colors = []  # Color by time (i+j)/2n - shows temporal progression
 
-            recurrence_rate = np.sum(recurrence) / (n_x * n_y) if n_x * n_y > 0 else 0
+            n = len(norm_x)
+
+            # For better performance, we can sample pairs
+            # But for accurate recurrence plot, we need all pairs
+            for i in range(n):
+                for j in range(n):
+                    if np.abs(norm_x[i] - norm_y[j]) < threshold:
+                        x_points.append(norm_x[i])
+                        y_points.append(norm_y[j])
+                        # Color by average time index - shows when in the signal these points occur
+                        colors.append((i + j) / (2 * n))
+
+            # Calculate recurrence rate
+            recurrence_rate = len(x_points) / (n * n) if n > 0 else 0
+
+            # Create diagonal line (perfect correlation reference)
+            diag_x = np.linspace(0, 1, 100)
+            diag_y = diag_x
+
+            # Create anti-diagonal for comparison
+            anti_diag_x = np.linspace(0, 1, 100)
+            anti_diag_y = 1 - anti_diag_x
+
+            # Detect diagonal lines (indicators of periodicity)
+            # This is simplified - in real recurrence plots, diagonal lines indicate periodic patterns
+            diagonal_lines = []
+            if len(x_points) > 100:
+                # Look for concentrations along the diagonal
+                diagonal_density = 0
+                for k in range(len(x_points)):
+                    if abs(x_points[k] - y_points[k % len(y_points)]) < 0.1:
+                        diagonal_density += 1
+                diagonal_density = diagonal_density / len(x_points) if len(x_points) > 0 else 0
+            else:
+                diagonal_density = 0
 
             return {
-                'recurrence_matrix': recurrence.tolist(),
-                'matrix': recurrence.tolist(),
+                'recurrence_scatter': {
+                    'x': x_points,
+                    'y': y_points,
+                    'colors': colors
+                },
+                'diagonal': {
+                    'x': diag_x.tolist(),
+                    'y': diag_y.tolist()
+                },
+                'anti_diagonal': {
+                    'x': anti_diag_x.tolist(),
+                    'y': anti_diag_y.tolist()
+                },
                 'x_channel': signal_data['channels'][ch_x] if ch_x < len(signal_data['channels']) else f'CH{ch_x+1}',
                 'y_channel': signal_data['channels'][ch_y] if ch_y < len(signal_data['channels']) else f'CH{ch_y+1}',
                 'recurrence_rate': float(recurrence_rate),
+                'diagonal_density': float(diagonal_density),
                 'threshold_used': threshold,
-                'matrix_size': [n_x, n_y]
+                'n_points': len(x_points),
+                'matrix_size': n,
+                'interpretation': 'Points cluster where channels are similar. Diagonal lines indicate periodic patterns (e.g., regular heartbeat).'
             }
 
         except Exception as e:
@@ -260,6 +409,7 @@ class SignalAnalysis:
         if len(signal) < period * 2:
             return 0.5
 
+        # Compute autocorrelation at the given period
         corr = 0
         count = 0
         for i in range(len(signal) - period):
@@ -273,6 +423,7 @@ class SignalAnalysis:
         signal_energy = np.mean(signal ** 2)
 
         if signal_energy > 0:
+            # Normalize to [0, 1]
             return float(min(1, max(0, (mean_corr / signal_energy + 1) / 2)))
         return 0.5
 
