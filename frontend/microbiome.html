@@ -116,6 +116,12 @@
         .recommendation-low {
             border-left-color: #51cf66;
         }
+
+        /* Analyze button hidden by default — shown only for Custom Input */
+        #analyzeBtnWrapper {
+            margin-left: auto;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -137,7 +143,8 @@
                 <button class="dataset-btn" data-dataset="ipop">iPOP (Healthy/Viral)</button>
                 <button class="dataset-btn" data-dataset="custom">Custom Input</button>
 
-                <div style="margin-left: auto;">
+                <!-- Analyze button: HIDDEN by default, shown only when Custom Input is active -->
+                <div id="analyzeBtnWrapper">
                     <button id="analyzeBtn" class="active">🔬 Analyze Sample</button>
                 </div>
             </div>
@@ -218,6 +225,34 @@
 
     <!-- Plotly -->
     <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+
+    <script>
+        // ── Dataset button logic ──────────────────────────────────────────
+        const datasetBtns   = document.querySelectorAll('.dataset-btn');
+        const customInput   = document.getElementById('customInput');
+        const analyzeBtnWrapper = document.getElementById('analyzeBtnWrapper');
+
+        datasetBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update active state
+                datasetBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const dataset = btn.getAttribute('data-dataset');
+
+                if (dataset === 'custom') {
+                    // Show custom input fields AND the Analyze button
+                    customInput.style.display = 'block';
+                    analyzeBtnWrapper.style.display = 'block';
+                } else {
+                    // Hide custom input AND the Analyze button
+                    customInput.style.display = 'none';
+                    analyzeBtnWrapper.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
     <script src="js/microbiome.js"></script>
 </body>
 </html>
