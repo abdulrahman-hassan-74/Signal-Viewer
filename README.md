@@ -802,6 +802,7 @@ pip install numpy scipy tensorflow librosa soundfile
 ## Usage
 
 ### Generate a Doppler Sound
+<img width="1518" height="597" alt="Image" src="https://github.com/user-attachments/assets/68158d50-2d4c-4ef4-a2a7-2eff0d90cf6b" />
 
 Simulates a vehicle passing the observer at a given speed.
 
@@ -827,6 +828,7 @@ result = analyzer.generate_doppler_sound(frequency=440, velocity=30, duration=5)
 ---
 
 ### Estimate Vehicle Velocity from Audio File
+<img width="1523" height="750" alt="Image" src="https://github.com/user-attachments/assets/1aeb757b-14bd-4361-8c62-3a70916bf915" />
 
 Analyzes a recorded audio file and estimates the vehicle's speed using Doppler frequency analysis.
 
@@ -851,6 +853,7 @@ The method is **self-calibrating** — it estimates the original emitted frequen
 ---
 
 ### Detect Drone from Audio File
+<img width="1515" height="525" alt="Image" src="https://github.com/user-attachments/assets/0add31aa-bce9-4efa-a841-95a69864ac8d" />
 
 Runs the audio through the trained neural network and returns a detection result.
 
