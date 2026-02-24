@@ -895,12 +895,70 @@ $$v = \frac{v_{high} + v_{low}}{2}, \quad v_{high} = c\left(1 - \frac{f_0}{f_{hi
 - The commented-out `detect_drone_from_file` variant in the source uses hand-crafted features instead of FFT; it can be re-enabled if a compatible model is available.
 
 
+---
+
+
+# Microbiome Signal Analysis Module
+
+<img width="1841" height="882" alt="Image" src="https://github.com/user-attachments/assets/5e3cb51f-0a71-4cdf-806c-a6a911e846e6" />
+
+## 🌿 Project Overview
+
+This project provides a **microbiome analysis tool** that helps estimate patient microbiome health profiles based on bacterial abundance data.
+
+The module analyzes gut microbiome composition and correlates it with known disease-associated microbial patterns.
+
+It is designed to be:
+
+- User-friendly
+- Robust against invalid numerical inputs
+- Suitable for backend integration
+- JSON-safe for web applications
+
+---
+
+## ⚙️ Features
+
+### 🔬 Microbiome Profiling
+- Estimates the closest microbial health/disease pattern.
+- Supports multiple conditions including:
+  - Healthy profile
+  - Inflammatory bowel disease pattern
+  - Type 2 diabetes profile
+  - Obesity-associated profile
+  - COVID-19 dysbiosis pattern
+  - Colorectal cancer-associated pattern
+- <img width="1850" height="792" alt="Image" src="https://github.com/user-attachments/assets/9e43dce1-c69e-4f53-a246-6eb68635a896" />
+### 📊 Mathematical Analysis Methods
+- Shannon diversity index calculation
+- Jensen–Shannon distance similarity measurement
+- Dysbiosis index estimation
+- Firmicutes/Bacteroidetes ratio biomarker
+
+### 🧠 Risk Detection System
+The analyzer identifies potential microbiome risk signals such as:
+
+- High inflammation markers
+- Low microbial diversity
+- Abnormal bacterial ratios
+- Cancer-associated bacterial elevation
+<img width="856" height="538" alt="Image" src="https://github.com/user-attachments/assets/95d4f51a-2122-4d8d-9a4d-09ab7d73dfd7" />
+
+### 💡 Personalized Recommendations
+The system provides:
+- Dietary suggestions
+- Lifestyle guidance
+- Screening recommendations based on risk factors
+<img width="1509" height="528" alt="Image" src="https://github.com/user-attachments/assets/73aeff12-1803-45f9-8d54-a94d23506bcd" />
+---
+
+
 
 ## Support
 - **Email**: alaaessam446@gmail.com
 - **Email**: abdullahgamil285@gmail.com
-- **Email**: 
-- **Email**: 
+- **Email**: sagasadek164@gmail.com
+- **Email**: abdelrahman.aly04@eng-st.cu.edu.eg
 
 ---
 
