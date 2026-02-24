@@ -255,57 +255,33 @@ Both predictions appear side-by-side:
 
 ---
 
-## Video Demonstrations
+## 📹 Video Demonstrations
 
-### 📹 ECG Demo Video Placeholder
-
+### ECG Signal Viewer Demo
 <video src="https://github.com/user-attachments/assets/2246c0b1-c6ab-4f3c-bc84-9623197aa19c" controls width="100%">
   Your browser does not support the video tag.
 </video>
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                                                         │
-│                    ECG DEMO VIDEO                       │
-│                                                         │
-│   [Upload your ECG demonstration video here]            │
-│                                                         │
-│   Timeline:                                             │
-│   • 0:00 - Introduction                                 │
-│   • 0:30 - File upload and channel display              │
-│   • 1:30 - Combined vs Separate view                    │
-│   • 2:30 - Playback controls and speed adjustment       │
-│   • 3:30 - XOR Graph demonstration                      │
-│   • 4:30 - Polar Graph animation                        │
-│   • 5:30 - Recurrence Plot                              │
-│   • 6:30 - AI Diagnosis and Classic ML comparison       │
-│   • 7:30 - Summary                                      │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
-```
+*This video demonstrates:*
+- *File upload and channel display*
+- *Combined vs Separate viewing modes*
+- *Playback controls and speed adjustment*
+- *XOR Graph, Polar Graph, and Recurrence Plot*
+- *AI Diagnosis with real ECG model*
+- *Classic ML comparison*
 
-### 📹 EEG Demo Video Placeholder
-```
-┌─────────────────────────────────────────────────────────┐
-│                                                         │
-│                    EEG DEMO VIDEO                        │
-│                                                         │
-│   [Upload your EEG demonstration video here]            │
-│                                                         │
-│   Timeline:                                             │
-│   • 0:00 - Introduction to EEG                          │
-│   • 0:30 - Loading 19-channel EEG file                  │
-│   • 1:30 - Channel selection and formatting             │
-│   • 2:30 - FFT and frequency band analysis              │
-│   • 3:30 - Polar Graph of alpha rhythm                  │
-│   • 4:30 - Recurrence Plot hemisphere comparison        │
-│   • 5:30 - AI model prediction with features            │
-│   • 6:30 - Classic ML spectral analysis                 │
-│   • 7:30 - Comparison of results                        │
-│   • 8:30 - Clinical interpretation                      │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
-```
+### EEG Signal Viewer Demo
+<video src="https://github.com/user-attachments/assets/5d56951c-5727-40fa-aee6-92c360ed2725" controls width="100%">
+  Your browser does not support the video tag.
+</video>
+
+*This video demonstrates:*
+- *Loading 19-channel EEG files*
+- *Frequency band analysis (delta, theta, alpha, beta)*
+- *Polar Graph animation of brain waves*
+- *Recurrence Plot for hemisphere comparison*
+- *AI model prediction with clinical features*
+- *Spectral analysis comparison*
 
 ---
 
@@ -339,10 +315,10 @@ Both predictions appear side-by-side:
 ---
 
 ## Support
-For issues or questions:
-- **GitHub Issues**: [repository issues link]
-- **Email**: [your email]
+- **Email**: alaaessam446@gmail.com
+- **Email**: 
+- **Email**: 
+- **Email**: 
 
 ---
 
-*Last updated: February 24, 2026*
