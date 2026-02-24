@@ -9,7 +9,7 @@
 6. [AI Models](#ai-models)
 7. [Classic ML Comparison](#classic-ml-comparison)
 8. [User Controls](#user-controls)
-9. [Video Demonstrations](#video-demonstrations)
+9. [Video Demonstrations](#-📹-Video-Demonstrations)
 
 ---
 
