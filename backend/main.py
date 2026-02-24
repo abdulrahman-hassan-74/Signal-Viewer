@@ -102,7 +102,7 @@ acoustic_analyzer = AcousticAnalyzer()
 finance_analyzer = FinanceAnalyzer()
 microbiome_analyzer = MicrobiomeAnalyzer()
 ecg_classifier = ECGClassifier(model_path='modules/ecg/models/ecg_model.hdf5')
-eeg_classifier = EEGClassifier(model_path='modules/eeg/models/EEG_MODEL.pkl')
+eeg_classifier = EEGClassifier(model_path='modules/eeg/models/EEG_MODEL.h5')
 file_parser = FileParser()
 signal_analyzer = SignalAnalysis()
 
@@ -905,7 +905,7 @@ def ecg_analyze():
 
 @app.route("/api/ecg/xor", methods=["POST", "OPTIONS"])
 def ecg_xor():
-    """XOR graph for ECG"""
+    """XOR graph for ECG with colormap control"""
     if request.method == 'OPTIONS':
         return '', 200
 
@@ -914,11 +914,13 @@ def ecg_xor():
         signal_data = data.get("signal_data")
         chunk_size = int(data.get("chunk_size", 250))
         channel_idx = int(data.get("channel_idx", 0))
+        colormap = data.get("colormap", "Hot")
 
-        result = signal_analyzer.compute_xor_graph(signal_data, chunk_size, channel_idx)
+        result = signal_analyzer.compute_xor_graph(signal_data, chunk_size, channel_idx, colormap)
         return jsonify({"status": "success", "xor": result}), 200
 
     except Exception as e:
+        logger.error(f"XOR error: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 @app.route("/api/ecg/polar", methods=["POST", "OPTIONS"])
@@ -1042,7 +1044,7 @@ def eeg_analyze():
 
 @app.route("/api/eeg/xor", methods=["POST", "OPTIONS"])
 def eeg_xor():
-    """XOR graph for EEG"""
+    """XOR graph for EEG with colormap control"""
     if request.method == 'OPTIONS':
         return '', 200
 
@@ -1051,11 +1053,13 @@ def eeg_xor():
         signal_data = data.get("signal_data")
         chunk_size = int(data.get("chunk_size", 250))
         channel_idx = int(data.get("channel_idx", 0))
+        colormap = data.get("colormap", "Hot")
 
-        result = signal_analyzer.compute_xor_graph(signal_data, chunk_size, channel_idx)
+        result = signal_analyzer.compute_xor_graph(signal_data, chunk_size, channel_idx, colormap)
         return jsonify({"status": "success", "xor": result}), 200
 
     except Exception as e:
+        logger.error(f"XOR error: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 @app.route("/api/eeg/polar", methods=["POST", "OPTIONS"])
