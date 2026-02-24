@@ -258,6 +258,11 @@ Both predictions appear side-by-side:
 ## Video Demonstrations
 
 ### 📹 ECG Demo Video Placeholder
+
+<video src="https://github.com/user-attachments/assets/2246c0b1-c6ab-4f3c-bc84-9623197aa19c" controls width="100%">
+  Your browser does not support the video tag.
+</video>
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                                                         │
