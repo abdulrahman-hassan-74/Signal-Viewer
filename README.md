@@ -1,3 +1,5 @@
+<img width="1070" height="340" alt="Image" src="https://github.com/user-attachments/assets/5baca750-7592-45e3-8866-5d974080b69b" />
+
 # Signal Viewer Hub - Complete Documentation
 
 ## 📋 Table of Contents
