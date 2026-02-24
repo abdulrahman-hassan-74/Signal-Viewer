@@ -774,8 +774,7 @@ A Python module for real-time acoustic signal processing, featuring Doppler effe
 - **Doppler Effect Simulation** — Generates realistic audio of a vehicle passing an observer, with physically accurate frequency shifts and distance-based amplitude decay.
 - **Velocity Estimation** — Analyzes a recorded audio file and estimates vehicle speed using spectrogram-based Doppler analysis, no prior knowledge of the emitted frequency required.
 - **Drone Detection** — Identifies drone audio signatures using a trained TensorFlow/Keras neural network model via FFT-based feature extraction.
-- **Test Signal Generation** — Produces synthetic drone and car-pass signals for debugging and benchmarking.
-- **Acoustic Feature Extraction** — Extracts RMS, zero-crossing rate, spectral centroid, spectral spread, and band energies from any audio signal.
+
 
 ---
 
@@ -799,22 +798,6 @@ pip install numpy scipy tensorflow librosa soundfile
 
 ---
 
-## Setup
-
-1. Clone or copy `acoustic.py` into your project.
-2. Place your trained drone detection model at:
-   ```
-   backend/models/drone_model.h5
-   ```
-   The module also checks for `drone_model.h5` in the same directory as `acoustic.py` on initialization.
-
-3. Instantiate the analyzer:
-   ```python
-   from acoustic import AcousticAnalyzer
-   analyzer = AcousticAnalyzer()
-   ```
-
----
 
 ## Usage
 
@@ -883,40 +866,9 @@ The model processes audio at **16,000 Hz**, fixes input length to **16,000 sampl
 
 > Make sure `backend/models/drone_model.h5` exists and matches the expected input shape before calling this method.
 
----
-
-### Extract Acoustic Features
-
-```python
-import numpy as np
-audio_data = np.random.randn(44100)  # example: 1 second of noise
-features = analyzer.extract_features(audio_data, fs=44100)
-
-# features keys:
-# rms, zero_crossing_rate, spectral_centroid,
-# spectral_spread, band_0_energy, band_1_energy,
-# band_2_energy, band_3_energy
-```
-
-| Feature | Description |
-|---|---|
-| `rms` | Root mean square energy |
-| `zero_crossing_rate` | Rate of sign changes per sample |
-| `spectral_centroid` | Weighted mean frequency (Hz) |
-| `spectral_spread` | Variance around spectral centroid |
-| `band_N_energy` | Energy in frequency bands: 0–300, 300–800, 800–2000, 2000–4000 Hz |
 
 ---
 
-### Generate Test Signals
-
-```python
-signals = analyzer.generate_test_signals()
-# signals['drone']    — synthetic drone audio (list)
-# signals['car_pass'] — Doppler car-pass audio (list)
-```
-
----
 
 ## Physics Reference
 
