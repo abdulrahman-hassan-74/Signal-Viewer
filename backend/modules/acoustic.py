@@ -30,7 +30,7 @@ class AcousticAnalyzer:
         self.sound_speed = 343
         self.fs = 44100
 
-        model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "drone_model.h5")
+        model_path = r"D:\SBE\Semester_4\DSP\Projects\task 1 - Copy\backend\models\drone_model.h5"
         print(f"Looking for model at: {model_path}")
         print(f"File exists: {os.path.exists(model_path)}")
         
@@ -280,47 +280,49 @@ class AcousticAnalyzer:
     #         return None
 # import tensorflow as tf
 
-
-
     def detect_drone_from_file(self, path):
+        """Fixed version - uses self.model (loaded once) + full error handling"""
+        try:
+            if self.model is None:
+                return {
+                    'detected': False,
+                    'confidence': 0.0,
+                    'drone_type': 'Unknown',
+                    'error': 'Drone model failed to load at startup'
+                }
 
-        MAX_LEN = 16000
-        TARGET_SR = 16000
+            MAX_LEN = 16000
+            TARGET_SR = 16000
 
-        model = tf.keras.models.load_model('backend/models/drone_model.h5')
+            # Load audio with librosa (already imported)
+            audio, sr = librosa.load(path, sr=TARGET_SR, mono=True)
 
-        # Load audio (auto converts to mono + resamples)
-        audio, sr = librosa.load(path, sr=TARGET_SR, mono=True)
+            # Fix length
+            if len(audio) > MAX_LEN:
+                audio = audio[:MAX_LEN]
+            else:
+                audio = np.pad(audio, (0, MAX_LEN - len(audio)))
 
-        # Fix length
-        if len(audio) > MAX_LEN:
-            audio = audio[:MAX_LEN]
-        else:
-            padding = MAX_LEN - len(audio)
-            audio = np.pad(audio, (0, padding))
+            # FFT + prediction
+            audio_t = tf.convert_to_tensor(audio, dtype=tf.float32)
+            fft = tf.abs(tf.signal.rfft(audio_t))
+            fft = tf.expand_dims(fft, axis=0)
 
-        # Convert to tensor
-        audio = tf.convert_to_tensor(audio, dtype=tf.float32)
+            confidence = float(self.model.predict(fft, verbose=0)[0][0])
+            is_drone = confidence >= 0.5
 
-        # FFT
-        fft = tf.signal.rfft(audio)
-        fft = tf.abs(fft)
+            return {
+                'detected': bool(is_drone),
+                'confidence': round(confidence * 100, 2),
+                'drone_type': 'AI-Detected Drone' if is_drone else 'No Drone Detected',
+                'method': 'Neural Network (FFT input)'
+            }
 
-        # Add batch dimension
-        fft = tf.expand_dims(fft, axis=0)
-
-        # Predict
-        confidence = model.predict(fft, verbose=0)[0][0]
-
-        is_drone = confidence >= 0.5
-
-        return {
-            'detected': bool(is_drone),
-            'confidence': float(confidence * 100),
-            # 'drone_type': "None",
-            # 'spectral_centroid': "None",
-            # 'spectral_signature': "None"
-        }
-
-            # return prob
-    
+        except Exception as e:
+            logger.error(f"Drone detection error: {e}", exc_info=True)
+            return {
+                'detected': False,
+                'confidence': 0.0,
+                'drone_type': 'Unknown',
+                'error': str(e)
+            }

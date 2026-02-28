@@ -2,12 +2,6 @@
 Finance Signal Analysis Module
 Stock market, currencies, minerals prediction using trained XGBoost models
 Predicts % return then converts back to price — handles large price swings correctly
-
-Fixes applied:
-  - _fetch_yahoo: interval override was wrongly applied to ALL '1d' interval calls,
-    not just when period='1d'. Now only switches to '1h' when period='1d'.
-  - _rolling_forecast: updates more feature fields each step for better accuracy.
-  - get_history: 5d period_days was incorrectly mapped to 5 days (matches '5d' not '1d').
 """
 
 import os
