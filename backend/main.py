@@ -1,6 +1,7 @@
 """
 Signal Viewer Hub — COMPLETE MERGED BACKEND SERVER
-Support all file formats: CSV, EDF, BDF, MAT, WFDB, DAT, TXT, WAV, MP3
+====================================================
+All file formats: CSV, EDF, BDF, MAT, WFDB, DAT, TXT, WAV, MP3
 """
 
 # ─────────────────────────── stdlib / third-party ────────────────────────────
@@ -12,14 +13,29 @@ import numpy as np
 import scipy.io as sio
 from werkzeug.utils import secure_filename
 
+
 # ══════════════════════════ OPTIONAL LIBRARIES ════════════════════════════════
 
 try:
     import pyedflib
     HAS_EDF = True
+    EDF_BACKEND = 'pyedflib'
 except ImportError:
     HAS_EDF = False
-    print("⚠ pyedflib not installed — EDF/BDF disabled.  pip install pyedflib")
+    EDF_BACKEND = None
+    print("⚠ pyedflib not installed — trying edfio ...")
+
+if not HAS_EDF:
+    try:
+        import edfio
+        HAS_EDF = True
+        EDF_BACKEND = 'edfio'
+        print("✓ edfio found — EDF/BDF enabled")
+    except ImportError:
+        EDF_BACKEND = None
+        print("⚠ No EDF library found. Install one of:\n"
+              "  pip install edfio      (pure Python, easiest)\n"
+              "  pip install pyedflib   (needs C compiler)")
 
 try:
     import h5py
@@ -320,39 +336,124 @@ def parse_csv_file(filepath):
 
 def parse_edf_file(filepath):
     if not HAS_EDF:
-        return {'error': 'EDF needs pyedflib: pip install pyedflib'}
+        return {'error': 'No EDF library installed. Run: pip install edfio'}
+
+    # ── edfio backend (pure-Python, no C compiler needed) ──────────────────────
+    if EDF_BACKEND == 'edfio':
+        try:
+            edf = edfio.read_edf(filepath)
+            SKIP = {'edf annotations', 'bdf annotations', 'status', 'trigger'}
+            MAX_SAMPLES = 75_000
+
+            sr_counts = {}
+            for sig in edf.signals:
+                if sig.label.strip().lower() in SKIP:
+                    continue
+                sr_counts[int(sig.sampling_frequency)] = sr_counts.get(int(sig.sampling_frequency), 0) + 1
+
+            if not sr_counts:
+                return {'error': 'EDF file has no usable signals'}
+
+            sr = max(sr_counts, key=sr_counts.get)
+            channels, data = [], []
+
+            for sig in edf.signals:
+                if sig.label.strip().lower() in SKIP:
+                    continue
+                s = sig.data.copy()
+                sr_ch = int(sig.sampling_frequency)
+                if sr_ch != sr and len(s) > 0:
+                    s = np.interp(np.linspace(0, 1, int(len(s) * sr / sr_ch)),
+                                  np.linspace(0, 1, len(s)), s)
+                if len(s) > MAX_SAMPLES:
+                    s = s[:MAX_SAMPLES]
+                channels.append(sig.label.strip() or f"CH{len(channels)+1}")
+                data.append([float(x) for x in s])
+
+            if not data:
+                return {'error': 'No data read from EDF file'}
+
+            ns = max(len(d) for d in data)
+            for i in range(len(data)):
+                if len(data[i]) < ns:
+                    data[i] = data[i] + [0.0] * (ns - len(data[i]))
+
+            logger.info(f"✓ EDF (edfio): {len(channels)} ch, {ns} samples @ {sr} Hz")
+            return {'success': True, 'channels': channels, 'data': data,
+                    'time': [i / sr for i in range(ns)], 'num_channels': len(channels),
+                    'num_samples': ns, 'sampling_rate': float(sr), 'file_type': 'edf'}
+        except Exception as e:
+            logger.error(f"EDF (edfio) parse error: {e}", exc_info=True)
+            return {'error': f'EDF parse error: {e}'}
+
+    # ── pyedflib backend ────────────────────────────────────────────────────────
     try:
         f  = pyedflib.EdfReader(filepath)
         nc = f.signals_in_file
         if nc == 0: return {'error': 'EDF file has no signals'}
-        channels = list(f.getSignalLabels())
-        try:    sr = int(f.getSampleFrequency(0)) or 250
-        except: sr = 250
+
+        all_labels = list(f.getSignalLabels())
+        SKIP_LABELS = {'edf annotations', 'bdf annotations', 'status', 'trigger'}
+        valid_indices = [i for i, lbl in enumerate(all_labels)
+                         if lbl.strip().lower() not in SKIP_LABELS]
+        if not valid_indices:
+            valid_indices = list(range(nc))
+
+        channels = [all_labels[i].strip() or f"CH{i+1}" for i in valid_indices]
+
+        sr_counts = {}
+        for i in valid_indices:
+            try:    sr_i = int(f.getSampleFrequency(i)) or 250
+            except: sr_i = 250
+            sr_counts[sr_i] = sr_counts.get(sr_i, 0) + 1
+        sr = max(sr_counts, key=sr_counts.get)
+
+        MAX_SAMPLES = 75_000
         data, ns = [], 0
-        for i in range(nc):
+
+        for i in valid_indices:
             try:
-                s = f.readSignal(i)
+                s     = f.readSignal(i)
+                sr_ch = int(f.getSampleFrequency(i)) or sr
+                if sr_ch != sr and len(s) > 0:
+                    s = np.interp(np.linspace(0, 1, int(len(s) * sr / sr_ch)),
+                                  np.linspace(0, 1, len(s)), s)
+                if len(s) > MAX_SAMPLES:
+                    s = s[:MAX_SAMPLES]
                 data.append([float(x) for x in s])
                 ns = max(ns, len(s))
-            except: data.append([])
+            except Exception as ch_err:
+                logger.warning(f"Skipping EDF channel {i}: {ch_err}")
+                data.append([])
+
         try:    f._close()
         except:
             try: f.close()
             except: pass
-        if ns == 0: return {'error': 'No data read from EDF file'}
+
+        paired = [(d, c) for d, c in zip(data, channels) if d]
+        if not paired:
+            return {'error': 'No data read from EDF file — all channels empty'}
+
+        data, channels = zip(*paired)
+        data, channels = list(data), list(channels)
+        ns = max(len(d) for d in data)
         for i in range(len(data)):
-            data[i] += [0.0] * (ns - len(data[i]))
-        logger.info(f"✓ EDF: {nc} ch, {ns} samples")
+            if len(data[i]) < ns:
+                data[i] = data[i] + [0.0] * (ns - len(data[i]))
+
+        logger.info(f"✓ EDF (pyedflib): {len(channels)} ch, {ns} samples @ {sr} Hz")
         return {'success': True, 'channels': channels, 'data': data,
-                'time': [i/sr for i in range(ns)], 'num_channels': nc,
+                'time': [i / sr for i in range(ns)], 'num_channels': len(channels),
                 'num_samples': ns, 'sampling_rate': float(sr), 'file_type': 'edf'}
     except Exception as e:
+        logger.error(f"EDF parse error: {e}", exc_info=True)
         return {'error': f'EDF parse error: {e}'}
 
 
 def parse_bdf_file(filepath):
     if not HAS_EDF:
-        return {'error': 'BDF needs pyedflib: pip install pyedflib'}
+        return {'error': 'No EDF library installed. Run: pip install edfio'}
     result = parse_edf_file(filepath)
     if result.get('success'): result['file_type'] = 'bdf'
     return result
