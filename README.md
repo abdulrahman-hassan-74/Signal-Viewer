@@ -1,183 +1,36 @@
-# 📊 Signal Viewer Hub - Complete Documentation
+<img width="1070" height="340" alt="Image" src="https://github.com/user-attachments/assets/5baca750-7592-45e3-8866-5d974080b69b" />
 
-<img width="1070" height="340" alt="Signal Viewer Hub Banner" src="https://github.com/user-attachments/assets/5baca750-7592-45e3-8866-5d974080b69b">
-
----
+# Signal Viewer Hub - Complete Documentation
 
 ## 📋 Table of Contents
-
-### 1.0 Project Overview
-- 1.1 Introduction
-- 1.2 Key Features
-- 1.3 Target Domains
-
-### 2.0 System Architecture
-- 2.1 High-Level Architecture
-- 2.2 Technology Stack
-- 2.3 Data Flow
-
-### 3.0 Project Structure
-- 3.1 Directory Layout
-- 3.2 Backend Modules
-- 3.3 Frontend Components
-
-### 4.0 Installation Guide
-- 4.1 Prerequisites
-- 4.2 Dependencies Installation
-- 4.3 Running the Application
-- 4.4 Configuration
-
-### 5.0 Medical Signal Analysis (ECG/EEG)
-- 5.1 ECG Module
-  - 5.1.1 Abnormality Types
-  - 5.1.2 AI Model Specifications
-  - 5.1.3 Feature Extraction
-- 5.2 EEG Module
-  - 5.2.1 Abnormality Types
-  - 5.2.2 AI Model Specifications
-  - 5.2.3 Frequency Bands
-- 5.3 Medical Module Interface
-
-### 6.0 Visualization Modules
-- 6.1 Continuous-Time Viewer
-- 6.2 XOR Graph
-- 6.3 Polar Graph
-- 6.4 Recurrence Plot
-- 6.5 FFT Spectrum Analyzer
-
-### 7.0 AI Models & Inference
-- 7.1 ECG Deep Learning Model
-- 7.2 EEG Classification Model
-- 7.3 Inference Pipeline
-- 7.4 Fallback Mechanisms
-
-### 8.0 Classic ML Comparison
-- 8.1 ECG Traditional Methods
-- 8.2 EEG Traditional Methods
-- 8.3 Comparison Framework
-
-### 9.0 Financial Analysis Module
-- 9.1 Supported Instruments
-- 9.2 XGBoost Prediction Models
-- 9.3 Feature Engineering
-- 9.4 API Endpoints
-- 9.5 Charting & Visualization
-- 9.6 Technical Indicators Panel
-
-### 10.0 Acoustic Signal Processing
-- 10.1 Doppler Effect Simulation
-- 10.2 Velocity Estimation
-- 10.3 Drone Detection
-- 10.4 Mathematical Foundations
-
-### 11.0 Microbiome Analysis
-- 11.1 Disease Profiles
-- 11.2 Diversity Metrics
-- 11.3 Risk Assessment
-- 11.4 Personalized Recommendations
-- 11.5 Analysis Interface
-
-### 12.0 User Interface & Controls
-- 12.1 Channel Controls
-- 12.2 Playback Controls
-- 12.3 Graph-Specific Controls
-- 12.4 Keyboard Shortcuts
-
-### 13.0 File Handling
-- 13.1 Supported Formats
-- 13.2 Parsers Implementation
-- 13.3 Upload Limitations
-
-### 14.0 API Reference
-- 14.1 Medical Endpoints
-- 14.2 Financial Endpoints
-- 14.3 Acoustic Endpoints
-- 14.4 Microbiome Endpoints
-
-### 15.0 Video Demonstrations
-- 15.1 ECG Viewer Demo
-- 15.2 EEG Viewer Demo
-
-### 16.0 Troubleshooting
-- 16.1 Common Issues
-- 16.2 Solutions & Workarounds
-
-### 17.0 Support & Contact
+1. [Project Overview](#project-overview)
+2. [Project Structure](#project-structure)
+3. [System Architecture](#system-architecture)
+4. [Installation Guide](#installation-guide)
+5. [Medical Signals (ECG/EEG)](#medical-signals-ecgeeg)
+6. [Viewer Types](#viewer-types)
+7. [AI Models](#ai-models)
+8. [Classic ML Comparison](#classic-ml-comparison)
+9. [User Controls](#user-controls)
+10. [Video Demonstrations](#-📹-Video-Demonstrations)
 
 ---
 
-## 1.0 Project Overview
+## Project Overview
 
-### 1.1 Introduction
-Signal Viewer Hub is a comprehensive multi-domain signal analysis platform developed as a team project for the Digital Signal Processing (DSP) course at the Faculty of Engineering Cairo University, Systems and Biomedical Engineering Department.
+Signal Viewer Hub is a comprehensive multi-domain signal analysis platform that provides real-time visualization and AI-powered diagnosis for:
 
-The platform provides real-time visualization and AI-powered diagnosis across multiple signal domains, integrating trained deep learning models with interactive visualization tools.
-
-### 1.2 Key Features
-- Real-time signal visualization with multiple viewing modes
-- AI-powered abnormality detection using trained models
-- Multi-channel signal support (up to 19 channels for EEG, 12 leads for ECG)
-- Interactive playback controls with adjustable speed and window size
-- Multiple visualization types (XOR, Polar, Recurrence, FFT)
-- Side-by-side comparison between AI and classic ML methods
-- Support for multiple file formats (CSV, EDF, MAT, WAV, etc.)
-
-### 1.3 Target Domains
 - **Medical Signals**: ECG (6 abnormality types) and EEG (4 abnormality types)
 - **Acoustic Signals**: Doppler effect simulation and drone detection
 - **Financial Signals**: Stocks, currencies, and commodities analysis
 - **Microbiome Signals**: Bacterial abundance and disease profiling
 
----
-
-## 2.0 System Architecture
-
-### 2.1 High-Level Architecture
-
-```
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│                 │     │                  │     │                 │
-│   Frontend      │────▶│    Backend       │────▶│   AI Models     │
-│   (HTML/CSS/JS  │     │    (Flask)       │     │   (HDF5/PKL)    │
-│   + Plotly)     │◀────│                  │◀────│                 │
-│                 │     │                  │     │                 │
-└─────────────────┘     └────────┬─────────┘     └─────────────────┘
-                                  │
-                                  ▼
-                        ┌─────────────────┐
-                        │                 │
-                        │  File Parsers   │
-                        │  (CSV, EDF,     │
-                        │   MAT, WAV)     │
-                        │                 │
-                        └─────────────────┘
-```
-
-### 2.2 Technology Stack
-
-| Component | Technologies |
-|-----------|-------------|
-| Frontend | HTML5, CSS3, JavaScript, Plotly.js |
-| Backend | Python 3.8+, Flask, Flask-CORS |
-| AI/ML | TensorFlow/Keras, Scikit-learn, XGBoost |
-| Signal Processing | NumPy, SciPy, Librosa |
-| File Parsing | PyEDFlib, H5Py, WFDB, SoundFile |
-| Financial Data | yFinance |
-
-### 2.3 Data Flow
-1. User uploads signal file through frontend interface
-2. Backend receives file and routes to appropriate parser
-3. File parser extracts multi-channel data based on format
-4. Processed data returned to frontend for visualization
-5. User selects viewer type and configures display parameters
-6. Optional: Request AI analysis for abnormality detection
-7. Results displayed with confidence scores and recommendations
+The platform features multiple viewer types with interactive controls and integrates real AI models for accurate abnormality detection. Built as a team project for the Digital Signal Processing (DSP) course — Faculty of Engineering Cairo University,Systems and Biomedical Engineering Department.
+.
 
 ---
 
-## 3.0 Project Structure
-
-### 3.1 Directory Layout
+## Project Structure
 
 ```
 task01-signal-viewer-sbeg205_spring26_team06/
@@ -185,28 +38,28 @@ task01-signal-viewer-sbeg205_spring26_team06/
 │   ├── modules/
 │   │   ├── ecg/
 │   │   │   ├── models/
-│   │   │   │   └── ecg_model.hdf5
-│   │   │   ├── ecg_inference.py
-│   │   │   └── ecg_processor.py
+│   │   │   │   └── ecg_model.hdf5        ← Pre-trained ECG AI model
+│   │   │   ├── ecg_inference.py          ← ECG AI classifier
+│   │   │   └── ecg_processor.py          ← ECG signal preprocessing
 │   │   ├── eeg/
 │   │   │   ├── models/
-│   │   │   │   └── EEG_MODEL.pkl
-│   │   │   ├── eeg_inference.py
-│   │   │   └── eeg_processor.py
-│   │   ├── acoustic.py
-│   │   ├── finance.py
-│   │   ├── medical.py
-│   │   └── microbiome.py
-│   ├── uploads/
-│   ├── file_parsers.py
-│   ├── signal_analysis.py
-│   └── main.py
+│   │   │   │   └── EEG_MODEL.pkl         ← Pre-trained EEG AI model
+│   │   │   ├── eeg_inference.py          ← EEG AI classifier
+│   │   │   └── eeg_processor.py          ← EEG signal preprocessing
+│   │   ├── acoustic.py                   ← Doppler & drone detection
+│   │   ├── finance.py                    ← Stock/currency/commodity analysis
+│   │   ├── medical.py                    ← General medical utilities
+│   │   └── microbiome.py                 ← Microbiome dataset analysis
+│   ├── uploads/                          ← Temporary file upload storage
+│   ├── file_parsers.py                   ← Shared file parsing utilities
+│   ├── signal_analysis.py                ← FFT, filter, wavelet, XOR, polar
+│   └── main.py                           ← Flask server — ALL API endpoints
 ├── frontend/
 │   ├── css/
 │   │   ├── dashboard.css
 │   │   └── style.css
 │   ├── js/
-│   │   ├── app.js
+│   │   ├── app.js                        ← Main app logic
 │   │   ├── acoustic.js
 │   │   ├── ecg.js
 │   │   ├── eeg.js
@@ -216,7 +69,7 @@ task01-signal-viewer-sbeg205_spring26_team06/
 │   │   ├── signalParser.js
 │   │   ├── ui.js
 │   │   └── visualizations.js
-│   ├── dashboard.html
+│   ├── dashboard.html                    ← Main entry point
 │   ├── acoustic.html
 │   ├── ecg.html
 │   ├── eeg.html
@@ -228,404 +81,577 @@ task01-signal-viewer-sbeg205_spring26_team06/
 └── README.md
 ```
 
-### 3.2 Backend Modules
+---
 
-| Module | File | Description |
-|--------|------|-------------|
-| ECG Processing | `ecg/` | ECG signal preprocessing and AI inference |
-| EEG Processing | `eeg/` | EEG signal preprocessing and AI inference |
-| Acoustic | `acoustic.py` | Doppler simulation and drone detection |
-| Financial | `finance.py` | Stock/currency/commodity analysis |
-| Microbiome | `microbiome.py` | Bacterial abundance analysis |
-| File Parsers | `file_parsers.py` | Multi-format file parsing utilities |
-| Signal Analysis | `signal_analysis.py` | FFT, filtering, wavelet transforms |
-| Main Server | `main.py` | Flask server with all API endpoints |
+## Setup & Installation
 
-### 3.3 Frontend Components
+### 1. Prerequisites
 
-| Component | File | Description |
-|-----------|------|-------------|
-| Main App Logic | `app.js` | Core application controller |
-| UI Management | `ui.js` | User interface interactions |
-| Visualizations | `visualizations.js` | Plotly chart rendering |
-| Signal Parsing | `signalParser.js` | Client-side signal parsing |
-| Module Scripts | `ecg.js`, `eeg.js`, etc. | Domain-specific functionality |
+- Python 3.8+
+- pip
+
+### 2. Install Python Dependencies
+
+```bash
+pip install flask flask-cors numpy scipy scikit-learn
+pip install tensorflow keras          # for ECG model (.hdf5)
+pip install pyedflib                  # for EDF/BDF files
+pip install h5py                      # for MAT v7.3 files
+pip install wfdb                      # for WFDB/PhysioBank files
+pip install soundfile                 # for WAV/MP3 audio files
+pip install yfinance xgboost          # for Finance module
+pip install joblib                    # for EEG model (.pkl)
+```
+
+Or install all at once:
+
+```bash
+pip install flask flask-cors numpy scipy scikit-learn tensorflow keras \
+            pyedflib h5py wfdb soundfile yfinance xgboost joblib
+```
+
+### 3. Run the Backend
+
+```bash
+cd backend
+python main.py
+```
+
+Server starts at: **http://127.0.0.1:5000**
+
+### 4. Open the Frontend
+
+Open `frontend/dashboard.html` directly in your browser — **no separate frontend server needed**.
+
+> Make sure the backend is running before opening any page.
 
 ---
 
-## 4.0 Installation Guide
+## Medical Module — ECG & EEG
+<img width="1776" height="811" alt="Image" src="https://github.com/user-attachments/assets/dd30b388-cefa-452e-a99a-4487f637055e" />
 
-### 4.1 Prerequisites
-- Python 3.8 or higher
-- pip package manager
-- Modern web browser (Chrome, Firefox, Edge)
-- 4GB RAM minimum (8GB recommended for AI models)
+### System Architecture
 
-### 4.2 Dependencies Installation
-
-```bash
-# Core dependencies
-pip install flask flask-cors numpy scipy scikit-learn
-
-# AI/ML frameworks
-pip install tensorflow keras xgboost joblib
-
-# File format support
-pip install pyedflib h5py wfdb soundfile
-
-# Financial data
-pip install yfinance
-
-# Audio processing
-pip install librosa
-
-# Install all at once
-pip install flask flask-cors numpy scipy scikit-learn tensorflow keras \
-            pyedflib h5py wfdb soundfile yfinance xgboost joblib librosa
+```
+Frontend (HTML/CSS/JS + Plotly) ←→ Backend (Flask Python) ←→ AI Models (HDF5/PKL)
+                                           │
+                                           ↓
+                                    File Parsers
+                              (CSV, EDF, MAT, WAV, etc.)
 ```
 
-### 4.3 Running the Application
+### How It Works:
+1. User uploads a signal file
+2. Backend parses the file and extracts multi-channel data
+3. Frontend displays the signal in the selected viewer
+4. AI model analyzes the signal and predicts abnormalities
+5. Classic ML comparison runs alongside for validation
+6. Results are displayed side-by-side for comparison
 
+---
+
+### Installation Guide
+
+### Quick Start
 ```bash
-# 1. Clone the repository
+# 1. Clone and setup
 git clone https://github.com/yourusername/signal-viewer-hub.git
 cd signal-viewer-hub
-
-# 2. (Optional) Create virtual environment
 python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# venv\Scripts\activate   # Windows
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
-# 3. Install dependencies
+# 2. Install dependencies
 pip install -r requirements.txt
 
-# 4. Start backend server
+# 3. Place AI models
+# ECG: backend/modules/ecg/models/ecg_model.hdf5
+# EEG: backend/modules/eeg/models/EEG_MODEL.h5
+
+# 4. Start server
 cd backend
 python main.py
 
-# 5. Open frontend
-# Navigate to frontend/dashboard.html in your browser
-# Backend runs at: http://127.0.0.1:5000
+# 5. Open browser
+# Navigate to frontend/index.html
 ```
 
-### 4.4 Configuration
-- Default server port: 5000 (configurable in `main.py`)
-- Upload directory: `backend/uploads/` (auto-created)
-- Max file size: 500MB (configurable)
-- Model paths: `backend/modules/[ecg|eeg]/models/`
+Server runs at `http://127.0.0.1:5000`
 
 ---
 
-## 5.0 Medical Signal Analysis (ECG/EEG)
+### Medical Signals (ECG/EEG)
 
-<div align="center">
-  <img width="1776" height="811" alt="Medical Module Interface" src="https://github.com/user-attachments/assets/dd30b388-cefa-452e-a99a-4487f637055e">
-  <p><em>Figure 1: Medical Signal Analysis Module Interface</em></p>
-</div>
+#### ECG - 6 Abnormality Types
+| Type | Risk Level | Description |
+|------|------------|-------------|
+| Normal Sinus Rhythm | None | Regular rhythm 60-100 BPM |
+| Atrial Fibrillation | Moderate-High | Irregular, no P waves |
+| Ventricular Tachycardia | High - Emergency | Wide QRS, rate >100 |
+| Premature Ventricular Contractions | Low-Moderate | Early wide QRS |
+| Sinus Bradycardia | Low | Slow rate <60 BPM |
+| Sinus Tachycardia | Low-Moderate | Fast rate >100 BPM |
 
-### 5.1 ECG Module
-
-#### 5.1.1 Abnormality Types
-
-| Type | Risk Level | Clinical Description | ECG Characteristics |
-|------|------------|---------------------|---------------------|
-| Normal Sinus Rhythm | None | Regular heart rhythm | Rate 60-100 BPM, normal P waves, regular RR intervals |
-| Atrial Fibrillation | Moderate-High | Irregular atrial activity | Irregularly irregular rhythm, absent P waves |
-| Ventricular Tachycardia | High - Emergency | Rapid ventricular rhythm | Wide QRS >120ms, rate >100 BPM, AV dissociation |
-| Premature Ventricular Contractions | Low-Moderate | Early ventricular beats | Premature wide QRS, compensatory pause |
-| Sinus Bradycardia | Low | Slow heart rate | Rate <60 BPM, normal morphology |
-| Sinus Tachycardia | Low-Moderate | Fast heart rate | Rate >100 BPM, normal morphology |
-
-#### 5.1.2 AI Model Specifications
-- **Model File**: `ecg_model.hdf5`
-- **Input Shape**: 4096 samples × 12 leads
-- **Sampling Rate**: 250 Hz (16 seconds of data)
-- **Architecture**: Multi-channel Convolutional Neural Network
-- **Output**: 6-class softmax probabilities
-- **Training Data**: 10,000+ annotated ECG recordings
-
-#### 5.1.3 Feature Extraction
-- Heart rate variability metrics (SDNN, RMSSD, pNN50)
-- RR interval statistics
-- QRS morphology parameters
-- ST segment elevation/depression
-- T wave amplitude and polarity
-- P wave presence and morphology
-
-### 5.2 EEG Module
-
-#### 5.2.1 Abnormality Types
-
-| Type | Risk Level | Description | Clinical Significance |
-|------|------------|-------------|----------------------|
-| Normal EEG | None | Age-appropriate rhythms | No epileptiform activity, normal background |
-| Epileptiform Activity | Moderate-High | Spike-wave discharges | Indicates seizure susceptibility |
-| Slow Wave Activity | Moderate | Excessive delta/theta | Suggests encephalopathy or structural lesion |
-| Asymmetry | Moderate | Hemisphere difference >30% | Indicates focal pathology |
-
-#### 5.2.2 AI Model Specifications
-- **Model File**: `EEG_MODEL.pkl`
-- **Input Options**: 256 samples × 19 channels OR feature vector
-- **Architecture**: Random Forest / CNN ensemble
-- **Output**: 4-class classification with confidence scores
-
-#### 5.2.3 Frequency Bands
-
-| Band | Frequency Range | Physiological Significance |
-|------|----------------|---------------------------|
-| Delta | 0.5 - 4 Hz | Deep sleep, pathology in awake adults |
-| Theta | 4 - 8 Hz | Drowsiness, meditation, memory encoding |
-| Alpha | 8 - 13 Hz | Relaxed wakefulness, eyes closed |
-| Beta | 13 - 30 Hz | Active thinking, concentration, anxiety |
-| Gamma | 30 - 50 Hz | Higher cognitive processing |
+#### EEG - 4 Abnormality Types
+| Type | Risk Level | Description |
+|------|------------|-------------|
+| Normal EEG | None | Age-appropriate rhythms |
+| Epileptiform Activity | Moderate-High | Spike-wave discharges |
+| Slow Wave Activity | Moderate | Excessive delta/theta |
+| Asymmetry | Moderate | Hemisphere difference >30% |
 
 ---
 
-## 6.0 Visualization Modules
+### Viewer Types
 
-### 6.1 Continuous-Time Viewer
-**Purpose**: Real-time display of multi-channel signals with playback controls
+#### 1. Continuous-Time Viewer
+**Two viewing modes:**
 
-**Features**:
-- Combined mode: All channels overlaid on single plot
-- Separate mode: Individual subplots for each channel
-- Synchronized zooming and panning across channels
-- Playback controls with adjustable speed (0.2x - 5x)
-- Window size adjustment (2s - 20s)
-- Manual position slider for navigation
-
-### 6.2 XOR Graph
-**Purpose**: Visualize differences between consecutive signal segments
-
-**Algorithm**:
-1. Divide signal into equal time chunks
-2. Compute absolute difference between consecutive chunks
-3. Generate heatmap visualization of differences
-
-**Applications**:
-- Detecting transient events
-- Identifying stationary vs. changing signal regions
-- Visualizing signal stationarity
-
-### 6.3 Polar Graph
-**Purpose**: Circular representation of periodic signals
-
-**Operating Modes**:
-
-| Mode | Description | Use Case |
+| Mode | Description | Controls |
 |------|-------------|----------|
-| Sliding | Moving circular pulse with fading trace | Real-time monitoring |
-| Cumulative | Overlapping patterns with average overlay | Periodicity analysis |
+| **Combined** | All channels in one plot | Show/hide channels, change colors, adjust thickness |
+| **Separate** | Grid of individual plots | Synchronized zoom/pan across all channels |
 
-**Parameters**:
-- Period length (samples or seconds)
-- Animation speed
-- Trace persistence (sliding mode only)
+**Playback Controls:**
+- ▶ Play / ⏸ Pause / ⏹ Stop
+- Speed slider (0.2x - 5x)
+- Window slider (2s - 20s)
+- Position slider for manual navigation
+- ↺ Reset to beginning
 
-### 6.4 Recurrence Plot
-**Purpose**: Visualize temporal correlations and patterns
+#### 2. XOR Graph
+**What it shows:** Differences between consecutive time chunks
 
-**Interpretation**:
-- Diagonal lines: Periodic/deterministic behavior
-- Clusters: Recurring states
-- Scattered points: Random/stochastic activity
-- Distance from diagonal: Dissimilarity between channels
+**How it works:**
+- Divides signal into equal time chunks
+- Computes XOR (absolute difference) between consecutive chunks
+- If chunks are identical → result is zero → chunks are erased
+- Heatmap visualization with customizable color maps
 
-### 6.5 FFT Spectrum Analyzer
-**Purpose**: Frequency domain analysis of signals
+**User Controls:**
+- Channel selection
+- Chunk size (time period)
+- Color map selection (Hot, Viridis, Plasma, etc.)
 
-**Features**:
-- Real-time FFT computation
-- Frequency band highlighting (EEG bands)
-- Peak detection
-- Power spectral density estimation
+#### 3. Polar Graph
+**What it shows:** Signal magnitude (r) vs time angle (θ)
 
----
+**Two modes:**
 
-## 7.0 AI Models & Inference
+| Mode | Visual Effect | Best For |
+|------|---------------|----------|
+| **Sliding** | Moving circular pulse (old points fade) | Real-time monitoring |
+| **Cumulative** | Overlapping patterns with average trace | Periodicity analysis |
 
-### 7.1 ECG Deep Learning Model
+**Animation Controls:**
+- ▶ Play - Cycles through each period
+- ⏸ Pause - Stops animation
+- ↺ Reset - Returns to first cycle
+- Cycle counter shows progress
 
-**Architecture Details**:
-```
-Input (4096, 12)
-    ↓
-Conv1D (64 filters, kernel 16, ReLU)
-    ↓
-MaxPooling (4)
-    ↓
-Conv1D (128 filters, kernel 8, ReLU)
-    ↓
-MaxPooling (4)
-    ↓
-Conv1D (256 filters, kernel 4, ReLU)
-    ↓
-GlobalAveragePooling1D
-    ↓
-Dense (128, ReLU, Dropout 0.5)
-    ↓
-Dense (64, ReLU, Dropout 0.3)
-    ↓
-Dense (6, Softmax)
-```
+#### 4. Recurrence Graph
+**What it shows:** Comparison between two channels as cumulative scatter plot
 
-### 7.2 EEG Classification Model
+**Pattern Interpretation:**
+| Pattern | Meaning |
+|---------|---------|
+| Points near diagonal | Channels behave similarly |
+| Diagonal lines | Periodic patterns (heartbeat, brain waves) |
+| Clusters | Recurring states |
+| Scattered points | Random noise |
 
-**Feature Engineering Pipeline**:
-1. Band power extraction (delta, theta, alpha, beta, gamma)
-2. Asymmetry indices between homologous channels
-3. Hjorth parameters (activity, mobility, complexity)
-4. Spike detection metrics
-5. Statistical features (mean, variance, skewness, kurtosis)
+**User Controls:**
+- Channel X and Y selection
+- Similarity threshold (lower = stricter)
+- Color map selection
 
-### 7.3 Inference Pipeline
+#### 5. FFT (Frequency Spectrum)
+**What it shows:** Frequency content of the signal
 
-```python
-# Simplified inference flow
-def predict_abnormality(signal_data, model_type):
-    # 1. Preprocessing
-    filtered = apply_filters(signal_data)
-    normalized = normalize_signal(filtered)
-    
-    # 2. Feature extraction
-    features = extract_clinical_features(normalized)
-    
-    # 3. Model inference
-    if model_available(model_type):
-        predictions = ai_model.predict(features)
-        confidence = calculate_confidence(predictions)
-    else:
-        predictions = rule_based_detection(features)
-        confidence = 0.7  # Default confidence for rule-based
-    
-    # 4. Post-processing
-    result = format_diagnosis(predictions, confidence)
-    return result
-```
-
-### 7.4 Fallback Mechanisms
-
-When AI models are unavailable:
-- **ECG**: Rule-based detection using heart rate, rhythm regularity, and waveform morphology
-- **EEG**: Threshold-based detection using band power ratios and asymmetry indices
+**EEG Bands:**
+| Band | Frequency | Significance |
+|------|-----------|--------------|
+| Delta | 0.5-4 Hz | Deep sleep |
+| Theta | 4-8 Hz | Drowsiness |
+| Alpha | 8-13 Hz | Relaxed wakefulness |
+| Beta | 13-30 Hz | Active thinking |
+| Gamma | 30-50 Hz | Higher cognition |
 
 ---
 
-## 8.0 Classic ML Comparison
+### AI Models
 
-### 8.1 ECG Traditional Methods
+#### ECG Model (`ecg_model.hdf5`)
+- **Input**: 4096 samples × 12 leads (16 seconds at 250Hz)
+- **Architecture**: Multi-channel CNN
+- **Output**: 6 classes (normal + 5 abnormalities)
+- **Features extracted**: Heart rate, RR intervals, QRS morphology, ST segment, T wave, P wave
 
-| Method | Features Extracted | Clinical Application |
-|--------|-------------------|---------------------|
-| HRV Analysis | SDNN, RMSSD, pNN50, LF/HF ratio | Autonomic nervous system assessment |
-| Autocorrelation | Periodicity peaks, correlation length | Heart rate estimation, rhythm regularity |
-| Statistical Analysis | Mean, standard deviation, zero crossings | Signal quality assessment, basic characterization |
-| Template Matching | Cross-correlation with normal beats | PVC detection, beat classification |
+#### EEG Model (`EEG_MODEL.h5`)
+- **Input**: 256 samples × 19 channels or feature vector
+- **Architecture**: CNN or Random Forest
+- **Output**: 4 classes (normal + 3 abnormalities)
+- **Features extracted**: Band powers, ratios, asymmetry index, spike rate, Hjorth parameters
 
-### 8.2 EEG Traditional Methods
+#### How Prediction Works
+1. Signal is preprocessed (filtering, normalization)
+2. Clinical features are extracted (30+ for ECG, 40+ for EEG)
+3. Features are fed to the AI model
+4. Model returns class probabilities and confidence score
+5. Results are displayed with risk assessment and treatment recommendations
 
-| Method | Features Extracted | Clinical Application |
-|--------|-------------------|---------------------|
-| Spectral Analysis | Absolute/relative band powers | Background activity assessment |
-| Asymmetry Detection | Left-right power differences | Focal lesion detection |
-| Spike Detection | Sharp transient detection | Epileptiform activity identification |
-| Hjorth Parameters | Activity, mobility, complexity | Signal characterization |
-
-### 8.3 Comparison Framework
-
-The interface displays side-by-side comparison:
-- **Left Panel**: AI diagnosis with confidence score and risk assessment
-- **Right Panel**: Classic ML results with methodology description
-- **Bottom Panel**: Agreement indicator (✅ match / ⚠️ discrepancy)
+#### Fallback Mechanism
+If AI model is not loaded, rule-based detection activates:
+- **ECG**: Based on heart rate, regularity, and variability
+- **EEG**: Based on band power ratios and asymmetry
 
 ---
 
-## 9.0 Financial Analysis Module
+### Classic ML Comparison
 
-### 9.1 Supported Instruments
+### ECG Classic ML Methods
+| Method | What it Measures | Clinical Use |
+|--------|------------------|--------------|
+| HRV Analysis | SDNN, RMSSD, pNN50 | Autonomic function |
+| Autocorrelation | Periodicity | Heart rate estimation |
+| Statistical Features | Mean, std, zero crossings | Signal quality |
+| Spectral Analysis | LF/HF ratio | Sympathetic/parasympathetic balance |
 
-| Ticker | Instrument | Type | Yahoo Finance Symbol |
-|--------|-----------|------|---------------------|
-| GOOGL | Google Inc. | Stock | GOOGL |
-| TSLA | Tesla Inc. | Stock | TSLA |
-| EURUSD | Euro/US Dollar | Forex | EURUSD=X |
-| GBPUSD | British Pound/US Dollar | Forex | GBPUSD=X |
-| GOLD | Gold Futures | Commodity | GC=F |
-| SILVER | Silver Futures | Commodity | SI=F |
+#### EEG Classic ML Methods
+| Method | What it Measures | Clinical Use |
+|--------|------------------|--------------|
+| Spectral Analysis | Band powers, ratios | Background activity |
+| Asymmetry Detection | Left-right difference | Structural lesions |
+| Spike Detection | Epileptiform discharges | Seizure activity |
+| Hjorth Parameters | Activity, mobility, complexity | Signal characteristics |
 
-### 9.2 XGBoost Prediction Models
+#### Comparison Display
+Both predictions appear side-by-side:
+- **Left panel**: AI diagnosis with confidence and risk
+- **Right panel**: Classic ML results with method description
+- **Bottom**: Agreement indicator (✅ agree / ⚠️ differ)
 
-**Model Performance**:
+---
 
-| Ticker | R² Score | MAPE | Status |
-|--------|----------|------|--------|
-| GOOGL | 0.959 | 1.50% | Excellent |
-| Silver | 0.932 | 2.45% | Excellent |
-| GBP/USD | 0.874 | 0.25% | Excellent |
-| EUR/USD | 0.842 | 0.21% | Excellent |
-| Gold | 0.786 | 1.14% | Good |
-| TSLA | 0.697 | 2.40% | Acceptable |
+### User Controls Summary
 
-**Hyperparameters**:
-- n_estimators: 500
-- max_depth: 5
-- learning_rate: 0.02
-- subsample: 0.8
-- colsample_bytree: 0.8
-- reg_alpha: 0.1
-- reg_lambda: 1.0
+### Channel Controls
+| Control | Function | Range |
+|---------|----------|-------|
+| Checkbox | Show/hide channel | On/Off |
+| Color Picker | Change channel color | Any color |
+| Thickness | Adjust line width | 0.5 - 3.0 |
 
-### 9.3 Feature Engineering
+#### Graph-Specific Controls
 
-**28 Technical Indicators**:
+| Graph | Controls |
+|-------|----------|
+| **XOR** | Channel, Chunk Size, Color Map |
+| **Polar** | Channel, Period, Mode (Sliding/Cumulative), Play/Pause |
+| **Recurrence** | Channel X, Channel Y, Threshold, Color Map |
+| **FFT** | Channel |
 
-| Category | Features |
-|----------|----------|
-| Trend | MA_7, MA_21, MA_50, EMA_12, EMA_26, Close_vs_MA7, Close_vs_MA21, MA7_vs_MA21 |
-| Momentum | RSI, RSI_7, MACD, Return_1d, Return_3d, Return_7d, Return_14d |
-| Volatility | Volatility_7, Volatility_21, Bollinger, ATR |
-| Lag | Lag_1, Lag_2, Lag_3, Lag_5, Lag_7, Lag_ret_1, Lag_ret_2, Lag_ret_3 |
-| Volume | Volume_Ratio |
+#### Filter Controls
+| Filter | Cutoff | Use |
+|--------|--------|-----|
+| Lowpass | 50 Hz | Remove high-frequency noise |
+| Highpass | 0.5 Hz | Remove baseline wander |
+| Bandpass | 0.5-50 Hz | Keep clinical frequencies |
 
-### 9.4 API Endpoints
+---
+
+### 📹 Video Demonstrations
+
+#### ECG Signal Viewer Demo
+<video src="https://github.com/user-attachments/assets/2246c0b1-c6ab-4f3c-bc84-9623197aa19c" controls width="100%">
+  Your browser does not support the video tag.
+</video>
+
+*This video demonstrates:*
+- *File upload and channel display*
+- *Combined vs Separate viewing modes*
+- *Playback controls and speed adjustment*
+- *XOR Graph, Polar Graph, and Recurrence Plot*
+- *AI Diagnosis with real ECG model*
+- *Classic ML comparison*
+
+#### EEG Signal Viewer Demo
+<video src="https://github.com/user-attachments/assets/5d56951c-5727-40fa-aee6-92c360ed2725" controls width="100%">
+  Your browser does not support the video tag.
+</video>
+
+*This video demonstrates:*
+- *Loading 19-channel EEG files*
+- *Frequency band analysis (delta, theta, alpha, beta)*
+- *Polar Graph animation of brain waves*
+- *Recurrence Plot for hemisphere comparison*
+- *AI model prediction with clinical features*
+- *Spectral analysis comparison*
+
+---
+
+### Quick Reference
+
+### Default Settings
+| Parameter | Default |
+|-----------|---------|
+| Viewport Duration | 10 seconds |
+| Playback Speed | 1x |
+| XOR Chunk Size | 250 samples |
+| Polar Period | 100 samples |
+| Recurrence Threshold | 0.3 |
+| Color Map (XOR) | Hot |
+| Color Map (Recurrence) | Viridis |
+
+#### Supported File Formats
+| Format | Max Size |
+|--------|----------|
+| CSV, TXT, EDF, BDF, MAT, WAV, MP3 | 500 MB |
+
+#### Keyboard Shortcuts
+| Key | Function |
+|-----|----------|
+| Space | Play/Pause |
+| ← → | Navigate |
+| + / - | Zoom |
+| R | Reset |
+| C | Toggle view mode |
+
+---
+
+## Finance Module — Stocks, Currencies & Commodities
+---
+
+### Overview
+
+The Finance module provides **real-time market data visualization** and **AI-powered next-day price prediction** for 6 financial instruments across 3 asset classes, powered by trained **XGBoost models**.
+
+> 📌 Access via: `frontend/finance.html`  
+> 📌 Backend module: `backend/modules/finance.py`  
+> 📌 API prefix: `/api/finance/`
+
+---
+
+### Supported Instruments
+
+| Ticker | Label | Type | Yahoo Finance Symbol |
+|--------|-------|------|---------------------|
+| `GOOGL` | Google Inc. | Stock | `GOOGL` |
+| `TSLA` | Tesla Inc. | Stock | `TSLA` |
+| `EURUSD` | Euro / US Dollar | Forex | `EURUSD=X` |
+| `GBPUSD` | British Pound / US Dollar | Forex | `GBPUSD=X` |
+| `GOLD` | Gold Futures | Mineral | `GC=F` |
+| `SILVER` | Silver Futures | Mineral | `SI=F` |
+
+---
+
+### System Architecture
+
+```
+User Browser (finance.html + finance.js)
+        │
+        │  REST API calls
+        ▼
+Flask Backend (main.py → finance.py)
+        │
+        ├── Yahoo Finance API  ←  Live OHLCV price data
+        │
+        └── XGBoost Models (models/)
+                ├── model_GOOGL.json  +  scaler_GOOGL.pkl
+                ├── model_TSLA.json   +  scaler_TSLA.pkl
+                ├── model_EURUSD.json +  scaler_EURUSD.pkl
+                ├── model_GBPUSD.json +  scaler_GBPUSD.pkl
+                ├── model_GOLD.json   +  scaler_GOLD.pkl
+                └── model_SILVER.json +  scaler_SILVER.pkl
+```
+
+---
+
+### API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/finance/history?ticker=GOOGL&period=3mo` | Historical OHLCV data |
-| GET | `/api/finance/predict?ticker=GOOGL` | Next-day price prediction |
-| GET | `/api/finance/indicators?ticker=GOOGL` | Technical indicators |
-| GET | `/api/finance/tickers` | List supported tickers |
+| `GET` | `/api/finance/history?ticker=GOOGL&period=3mo` | Historical OHLCV data for candlestick chart |
+| `GET` | `/api/finance/predict?ticker=GOOGL` | Next-day price prediction + 7-day forecast |
+| `GET` | `/api/finance/indicators?ticker=GOOGL` | Technical indicators (RSI, MACD, Bollinger, etc.) |
+| `GET` | `/api/finance/tickers` | List all supported tickers and model status |
 
-### 9.5 Charting & Visualization
+#### Supported Time Periods (`period`)
 
-<div align="center">
-  <img width="1768" height="671" alt="Financial Chart - MetaTrader Style" src="https://github.com/user-attachments/assets/b3f21bc2-fbdd-4f14-99a9-e8edb8f16a7b">
-  <p><em>Figure 2: MetaTrader-Style Candlestick Chart</em></p>
-</div>
+| Period | Data Returned |
+|--------|--------------|
+| `1d` | Intraday — hourly candles |
+| `5d` | Last 5 trading days |
+| `1mo` | Last 30 days |
+| `3mo` | Last 90 days (default) |
+| `6mo` | Last 180 days |
+| `1y` | Last 365 days |
 
-**Candlestick Chart Style**:
-- Background: Light grey-blue `#f0f3fa`
-- Up candles: Blue `#2962ff`
-- Down candles: Red `#f23645`
-- MA-20: Orange line `#ff6d00`
-- Price axis: Right side
+---
 
-<div align="center">
-  <img width="1800" height="597" alt="7-Day Forecast Chart" src="https://github.com/user-attachments/assets/8ab421dd-6db6-4131-b976-1b51c9e5fe13">
-  <p><em>Figure 3: 7-Day Price Forecast with Confidence Band</em></p>
-</div>
+### AI Prediction Model
 
-**7-Day Forecast**:
-- Rolling prediction with feedback
-- Confidence band at ±0.5%
-- Visual comparison with historical data
+#### How It Works
 
-### 9.6 Technical Indicators Panel
+The prediction engine uses a **return-based approach** — the model predicts the **percentage change** for the next day, then converts it to a price. This is the standard approach in financial ML.
 
-<div align="center">
-  <img width="1797" height="437" alt="Technical Indicators Panel" src="https://github.com/user-attachments/assets/ce3b060a-baea-4902-81e8-0c4b9c7c8c5c">
-  <p><em>Figure 4: Technical Indicators Dashboard</em></p>
-</div>
+```
+❌ Old approach — predict absolute price:
+   Training: Gold at $1,800–$2,500
+   Testing:  Gold at $3,500–$4,370  ← model never saw these prices
+   Result:   R² = -6.05  (fails completely)
+
+✅ New approach — predict % return:
+   Training: Daily returns = -3% to +3%
+   Testing:  Daily returns = -3% to +3%  ← always same range
+   Result:   R² = 0.93  (excellent)
+
+Formula: predicted_price = current_price × (1 + predicted_return)
+Example: 313.38 × (1 + 0.0007) = $313.60
+```
+
+#### Model Performance
+
+| Ticker | R² Score | MAPE | Status |
+|--------|----------|------|--------|
+| GOOGL  | 0.959 | 1.50% | ✅ Excellent |
+| Silver | 0.932 | 2.45% | ✅ Excellent |
+| GBP/USD | 0.874 | 0.25% | ✅ Excellent |
+| EUR/USD | 0.842 | 0.21% | ✅ Excellent |
+| Gold   | 0.786 | 1.14% | ✅ Good |
+| TSLA   | 0.697 | 2.40% | ✅ Acceptable |
+
+> **R² = 1.0** → perfect prediction | **R² = 0.0** → no better than guessing the average | **R² < 0** → worse than average
+
+#### XGBoost Hyperparameters
+
+| Parameter | Value | Purpose |
+|-----------|-------|---------|
+| `n_estimators` | 500 | Number of decision trees |
+| `max_depth` | 5 | Max depth per tree — prevents overfitting |
+| `learning_rate` | 0.02 | Small steps → more accurate |
+| `subsample` | 0.8 | Each tree sees 80% of data — adds diversity |
+| `colsample_bytree` | 0.8 | Each tree sees 80% of features |
+| `reg_alpha` | 0.1 | L1 regularization |
+| `reg_lambda` | 1.0 | L2 regularization |
+
+---
+
+### Feature Engineering — 28 Technical Indicators
+
+The model is trained on 28 features computed from raw OHLCV data:
+
+#### Trend Features
+| Feature | Formula | What It Captures |
+|---------|---------|-----------------|
+| `MA_7` | 7-day simple moving average | Short-term trend |
+| `MA_21` | 21-day simple moving average | Medium-term trend |
+| `MA_50` | 50-day simple moving average | Long-term trend |
+| `EMA_12` | 12-day exponential moving average | Fast momentum |
+| `EMA_26` | 26-day exponential moving average | Slow momentum |
+| `Close_vs_MA7` | `Close / MA_7 - 1` | % above/below short MA |
+| `Close_vs_MA21` | `Close / MA_21 - 1` | % above/below medium MA |
+| `MA7_vs_MA21` | `MA_7 / MA_21 - 1` | MA crossover signal |
+
+#### Momentum Features
+| Feature | Formula | What It Captures |
+|---------|---------|-----------------|
+| `RSI` | RSI over 14 days | Overbought/oversold (0–100) |
+| `RSI_7` | RSI over 7 days | Faster overbought signal |
+| `MACD` | `EMA_12 - EMA_26` | Momentum direction |
+| `Return_1d` | 1-day % change | Yesterday's move |
+| `Return_3d` | 3-day % change | 3-day momentum |
+| `Return_7d` | 7-day % change | Weekly momentum |
+| `Return_14d` | 14-day % change | Bi-weekly momentum |
+
+#### Volatility Features
+| Feature | Formula | What It Captures |
+|---------|---------|-----------------|
+| `Volatility_7` | Std dev of returns (7d) | Short-term risk |
+| `Volatility_21` | Std dev of returns (21d) | Medium-term risk |
+| `Bollinger` | Position in Bollinger Band | `0` = lower band, `1` = upper band |
+| `ATR` | Average True Range (14d) | Daily price movement range |
+
+#### Lag Features (most predictive)
+| Feature | Description |
+|---------|-------------|
+| `Lag_1` | Yesterday's closing price |
+| `Lag_2` | 2 days ago closing price |
+| `Lag_3` | 3 days ago closing price |
+| `Lag_5` | 5 days ago closing price |
+| `Lag_7` | 1 week ago closing price |
+| `Lag_ret_1` | Yesterday's return |
+| `Lag_ret_2` | 2 days ago return |
+| `Lag_ret_3` | 3 days ago return |
+
+#### Volume Feature
+| Feature | Formula | What It Captures |
+|---------|---------|-----------------|
+| `Volume_Ratio` | `Volume / MA_7(Volume)` | Unusual trading activity |
+
+---
+
+### Training Methodology
+
+#### Data
+- **Source:** Yahoo Finance historical data (downloaded via `yfinance`)
+- **Range:** 2018-01-01 to 2025-12-30 (~2,000 rows per ticker)
+- **Format:** Daily OHLCV for all instruments
+
+#### Train / Test Split
+```
+❌ Random shuffle — NEVER used for time series (causes data leakage)
+
+✅ Chronological split:
+   Train: 2018 → Dec 2025 (all except last 60 days)
+   Test:  Last 60 trading days only
+
+Final deployment model: trained on 100% of data
+→ captures most recent price patterns
+```
+
+#### Scaler
+Each ticker has its own `MinMaxScaler` saved as `.pkl`. The scaler normalizes all 28 features to `[0, 1]` range. **The exact same scaler used in training must be used during prediction.**
+
+```python
+# Training (Kaggle)
+scaler = MinMaxScaler()
+X_scaled = scaler.fit_transform(X)
+joblib.dump(scaler, "scaler_GOOGL.pkl")
+
+# Prediction (backend)
+scaler  = joblib.load("scaler_GOOGL.pkl")
+scaled  = scaler.transform(latest_features)   # same scale!
+```
+
+---
+
+### Chart — MetaTrader Style
+<img width="1768" height="671" alt="Image" src="https://github.com/user-attachments/assets/b3f21bc2-fbdd-4f14-99a9-e8edb8f16a7b" />
+The price chart is styled to match professional trading platforms (MT4/MT5):
+
+| Property | Value |
+|----------|-------|
+| Background | Light grey-blue `#f0f3fa` |
+| Up candles | Blue `#2962ff` |
+| Down candles | Red `#f23645` |
+| MA-20 line | Thin solid orange `#ff6d00` |
+| Price axis | Right side (trading standard) |
+| Wick width | Thin (`whiskerwidth: 0.3`) |
+| Grid | Subtle light lines |
+| Margins | Compact (minimal dead space) |
+
+#### 7-Day Forecast Chart
+<img width="1800" height="597" alt="Image" src="https://github.com/user-attachments/assets/8ab421dd-6db6-4131-b976-1b51c9e5fe13" />
+After clicking **"Predict Future"**, a rolling 7-day forecast is shown:
+- Each day's prediction feeds back as input for the next day
+- Lag features (`Lag_1`, `Lag_ret_1`, etc.) update each step
+- Confidence band shown at ±0.5% around forecast line
+
+---
+
+### Technical Indicators Panel
+<img width="1797" height="437" alt="Image" src="https://github.com/user-attachments/assets/ce3b060a-baea-4902-81e8-0c4b9c7c8c5c" />
+Displayed automatically after loading any ticker:
 
 | Indicator | Description | Signal |
 |-----------|-------------|--------|
@@ -641,360 +667,298 @@ The interface displays side-by-side comparison:
 
 ---
 
-## 10.0 Acoustic Signal Processing
+### File Structure
 
-### 10.1 Doppler Effect Simulation
+```
+backend/modules/
+└── finance.py               ← Core module
 
-<div align="center">
-  <img width="1518" height="597" alt="Doppler Effect Simulation" src="https://github.com/user-attachments/assets/68158d50-2d4c-4ef4-a2a7-2eff0d90cf6b">
-  <p><em>Figure 5: Doppler Effect Simulation Interface</em></p>
-</div>
+backend/models/              ← AI model files (you must place these here)
+├── model_GOOGL.json         ← XGBoost model (JSON — version-independent)
+├── scaler_GOOGL.pkl         ← MinMaxScaler (must match training exactly)
+├── model_TSLA.json
+├── scaler_TSLA.pkl
+├── model_EURUSD.json
+├── scaler_EURUSD.pkl
+├── model_GBPUSD.json
+├── scaler_GBPUSD.pkl
+├── model_GOLD.json
+├── scaler_GOLD.pkl
+├── model_SILVER.json
+└── scaler_SILVER.pkl
 
-**Function**: `generate_doppler_sound(frequency=440, velocity=30, duration=5)`
+frontend/
+├── finance.html             ← Finance viewer page
+└── js/finance.js            ← Chart rendering + API calls
+```
 
-**Physics Model**:
-- Observer positioned 2m perpendicular to vehicle path
-- Continuous radial velocity calculation
-- Distance-based amplitude decay
+> **Note:** Model files are not included in the repository due to size. Train them using the Kaggle notebook, then place the 12 files (6 `.json` + 6 `.pkl`) in `backend/models/`.
 
-**Output Parameters**:
-- `audio_base64`: Base64-encoded WAV file
-- `sample_rate`: 44100 Hz
-- `frequency_range`: Min/max observed frequencies
-- `doppler_shift`: Frequency difference (Hz)
+---
 
-### 10.2 Velocity Estimation
+### Data Flow — End to End
 
-<div align="center">
-  <img width="1523" height="750" alt="Vehicle Velocity Estimation" src="https://github.com/user-attachments/assets/1aeb757b-14bd-4361-8c62-3a70916bf915">
-  <p><em>Figure 6: Vehicle Velocity Estimation from Audio</em></p>
-</div>
+```
+1. User selects ticker + time period in browser
+        ↓
+2. finance.js calls GET /api/finance/history
+        ↓
+3. finance.py checks cache (1-hour TTL)
+   → if fresh: return cached data
+   → if stale: fetch from Yahoo Finance API
+        ↓
+4. finance.js renders MetaTrader-style candlestick chart
+        ↓
+5. User clicks "Predict Future"
+        ↓
+6. finance.js calls GET /api/finance/predict
+        ↓
+7. finance.py:
+   a. Fetch last 1 year of OHLCV data
+   b. Compute 28 features for every day
+   c. Take last row (today's features)
+   d. Normalize with saved MinMaxScaler
+   e. Run XGBoost model → predicted return
+   f. Convert: price = current × (1 + return)
+   g. Rolling forecast: repeat 7 times, feeding each prediction back
+        ↓
+8. finance.js renders 7-day forecast chart + detail panel
+        ↓
+9. finance.js also fetches /api/finance/indicators
+        ↓
+10. Technical indicators panel updates automatically
+```
 
-**Function**: `estimate_velocity_from_file(file_path)`
+---
 
-**Self-Calibrating Algorithm**:
-1. Extract spectrogram from audio
-2. Identify approaching and receding frequency segments
-3. Estimate emitted frequency at closest approach
-4. Calculate velocity using Doppler formula
+### Quick Reference
 
-**Output**:
-- Estimated velocity (m/s and km/h)
-- Emitted frequency estimate
-- Confidence score (0.0 - 0.95)
-- Direction analysis
+### Default Settings
 
-### 10.3 Drone Detection
+| Parameter | Default |
+|-----------|---------|
+| Default Ticker | `GOOGL` |
+| Default Period | `3mo` |
+| Forecast Length | 7 days |
+| Data Cache TTL | 1 hour |
+| Fallback | CSV files in `backend/data/` |
 
-<div align="center">
-  <img width="1515" height="525" alt="Drone Detection" src="https://github.com/user-attachments/assets/0add31aa-bce9-4efa-a841-95a69864ac8d">
-  <p><em>Figure 7: AI-Powered Drone Detection</em></p>
-</div>
+#### RSI Interpretation
 
-**Function**: `detect_drone_from_file(file_path)`
+| RSI Value | Signal | Action |
+|-----------|--------|--------|
+| > 70 | Overbought | Potential sell signal |
+| 50–70 | Bullish | Upward momentum |
+| 30–50 | Bearish | Downward momentum |
+| < 30 | Oversold | Potential buy signal |
 
-**Model Specifications**:
-- Input: 16,000 samples (1 second at 16kHz)
-- Features: FFT magnitude spectrum
-- Architecture: TensorFlow/Keras neural network
-- Output: Binary classification with confidence
+#### Troubleshooting
 
-### 10.4 Mathematical Foundations
+| Problem | Cause | Fix |
+|---------|-------|-----|
+| "Model not loaded" error | `.json` or `.pkl` file missing | Place model files in `backend/models/` |
+| All predictions identical | Wrong scaler loaded | Ensure `.pkl` matches the trained model |
+| "Insufficient data" error | Fewer than 60 rows returned | Yahoo Finance rate limit — wait and retry |
+| Yahoo Finance fails | Network / rate limit | App falls back to CSV files in `backend/data/` |
+| Chart not rendering | Backend not running | Start with `python main.py` on port 5000 |
 
-**Doppler Effect Formula**:
+---
+# 🔊 Acoustic Signal Analysis Module
+
+A Python module for real-time acoustic signal processing, featuring Doppler effect simulation, vehicle velocity estimation, and AI-powered drone detection.
+
+---
+
+## Features
+
+- **Doppler Effect Simulation** — Generates realistic audio of a vehicle passing an observer, with physically accurate frequency shifts and distance-based amplitude decay.
+- **Velocity Estimation** — Analyzes a recorded audio file and estimates vehicle speed using spectrogram-based Doppler analysis, no prior knowledge of the emitted frequency required.
+- **Drone Detection** — Identifies drone audio signatures using a trained TensorFlow/Keras neural network model via FFT-based feature extraction.
+
+
+---
+
+## Requirements
+
+Install dependencies via pip:
+
+```bash
+pip install numpy scipy tensorflow librosa soundfile
+```
+
+| Package | Purpose |
+|---|---|
+| `numpy` | Array math and signal processing |
+| `scipy` | Spectrogram computation, WAV I/O |
+| `tensorflow` | Drone detection neural network |
+| `librosa` | Audio loading and resampling |
+| `soundfile` | High-quality WAV encoding *(optional but recommended)* |
+
+> If `soundfile` is not installed, WAV export in `generate_doppler_sound` will be disabled (`audio_base64` returns `None`).
+
+---
+
+
+## Usage
+
+### Generate a Doppler Sound
+<img width="1518" height="597" alt="Image" src="https://github.com/user-attachments/assets/68158d50-2d4c-4ef4-a2a7-2eff0d90cf6b" />
+
+Simulates a vehicle passing the observer at a given speed.
+
+```python
+result = analyzer.generate_doppler_sound(frequency=440, velocity=30, duration=5)
+
+# result keys:
+# audio_base64      — WAV file encoded as base64 string (if soundfile is available)
+# sample_rate       — Audio sample rate (44100 Hz)
+# duration          — Duration in seconds
+# sound_array       — Raw audio samples as a list (fallback if soundfile unavailable)
+# frequency_range   — {'min': ..., 'max': ..., 'original': ...}
+# velocity_used     — Velocity passed in (m/s)
+# doppler_shift     — Frequency difference between approaching and receding (Hz)
+```
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `frequency` | int/float | 440 | Emitted sound frequency in Hz |
+| `velocity` | float | 30 | Vehicle speed in m/s (must be < 343 m/s) |
+| `duration` | float | 5 | Duration of audio clip in seconds |
+
+---
+
+### Estimate Vehicle Velocity from Audio File
+<img width="1523" height="750" alt="Image" src="https://github.com/user-attachments/assets/1aeb757b-14bd-4361-8c62-3a70916bf915" />
+
+Analyzes a recorded audio file and estimates the vehicle's speed using Doppler frequency analysis.
+
+```python
+result = analyzer.estimate_velocity_from_file('path/to/audio.wav')
+
+# result keys:
+# estimated_velocity_ms   — Speed in meters per second
+# estimated_velocity_kmh  — Speed in kilometers per hour
+# estimated_emitted_freq  — Self-calibrated emitted frequency (Hz)
+# freq_approaching_avg    — Average frequency in first half of recording
+# freq_receding_avg       — Average frequency in second half
+# f_high_percentile       — 90th percentile frequency (approaching peak)
+# f_low_percentile        — 10th percentile frequency (receding trough)
+# direction               — 'approaching then receding' or 'receding (partial pass?)'
+# method                  — Analysis method used
+# confidence              — Confidence score (0.0 – 0.95)
+```
+
+The method is **self-calibrating** — it estimates the original emitted frequency from the audio itself (at the moment of closest approach), so no prior knowledge of the vehicle's sound is needed.
+
+---
+
+### Detect Drone from Audio File
+<img width="1515" height="525" alt="Image" src="https://github.com/user-attachments/assets/0add31aa-bce9-4efa-a841-95a69864ac8d" />
+
+Runs the audio through the trained neural network and returns a detection result.
+
+```python
+result = analyzer.detect_drone_from_file('path/to/audio.wav')
+
+# result keys:
+# detected    — True / False
+# confidence  — Confidence percentage (0–100)
+```
+
+The model processes audio at **16,000 Hz**, fixes input length to **16,000 samples (1 second)**, and uses an **FFT magnitude spectrum** as the input feature vector.
+
+> Make sure `backend/models/drone_model.h5` exists and matches the expected input shape before calling this method.
+
+
+---
+
+
+## Physics Reference
+
+The Doppler effect formula used:
 
 $$f_{observed} = f_0 \cdot \frac{v_{sound}}{v_{sound} - v_{radial}}$$
 
-**Velocity Estimation**:
+Where $v_{radial}$ is the component of the vehicle's velocity directed toward the observer, computed continuously along the vehicle's trajectory.
 
-$$v = \frac{v_{high} + v_{low}}{2}$$
+Velocity is estimated inversely from observed high/low frequencies:
 
-$$v_{high} = c\left(1 - \frac{f_0}{f_{high}}\right)$$
-
-$$v_{low} = c\left(\frac{f_0}{f_{low}} - 1\right)$$
-
-Where:
-- c = 343 m/s (speed of sound at 20°C)
-- f₀ = emitted frequency
-- f_high = observed frequency during approach
-- f_low = observed frequency during recession
+$$v = \frac{v_{high} + v_{low}}{2}, \quad v_{high} = c\left(1 - \frac{f_0}{f_{high}}\right), \quad v_{low} = c\left(\frac{f_0}{f_{low}} - 1\right)$$
 
 ---
 
-## 11.0 Microbiome Analysis
+## Notes
 
-<div align="center">
-  <img width="1841" height="882" alt="Microbiome Analysis Main Interface" src="https://github.com/user-attachments/assets/5e3cb51f-0a71-4cdf-806c-a6a911e846e6">
-  <p><em>Figure 8: Microbiome Analysis Module - Main Interface</em></p>
-</div>
+- Sound speed is fixed at **343 m/s** (dry air at ~20°C).
+- The observer is placed **2 meters** perpendicular to the vehicle's path in Doppler simulations.
+- The module logs errors via Python's standard `logging` library — configure a handler to capture them.
+- The commented-out `detect_drone_from_file` variant in the source uses hand-crafted features instead of FFT; it can be re-enabled if a compatible model is available.
 
-### 11.1 Disease Profiles
-
-| Condition | Key Microbial Markers |
-|-----------|----------------------|
-| Healthy | Balanced Firmicutes/Bacteroidetes, high diversity |
-| Inflammatory Bowel Disease | Reduced Faecalibacterium, increased Proteobacteria |
-| Type 2 Diabetes | Increased Lactobacillus, reduced butyrate producers |
-| Obesity | Increased Firmicutes/Bacteroidetes ratio |
-| COVID-19 Dysbiosis | Reduced diversity, opportunistic pathogens |
-| Colorectal Cancer | Increased Fusobacterium, Bacteroides fragilis |
-
-<div align="center">
-  <img width="1850" height="792" alt="Disease Profile Matching" src="https://github.com/user-attachments/assets/9e43dce1-c69e-4f53-a246-6eb68635a896">
-  <p><em>Figure 9: Disease Profile Matching Results</em></p>
-</div>
-
-### 11.2 Diversity Metrics
-
-**Shannon Diversity Index**:
-
-$$H' = -\sum_{i=1}^{R} p_i \ln p_i$$
-
-Where:
-- R = number of bacterial taxa
-- p_i = proportion of taxon i
-
-**Interpretation**:
-- H' > 3.5: High diversity (healthy)
-- H' 2.5-3.5: Moderate diversity
-- H' < 2.5: Low diversity (dysbiosis risk)
-
-### 11.3 Risk Assessment
-
-<div align="center">
-  <img width="856" height="538" alt="Risk Detection System" src="https://github.com/user-attachments/assets/95d4f51a-2122-4d8d-9a4d-09ab7d73dfd7">
-  <p><em>Figure 10: Microbiome Risk Detection System</em></p>
-</div>
-
-The system evaluates:
-- Inflammation markers (Proteobacteria abundance)
-- Diversity score
-- Firmicutes/Bacteroidetes ratio
-- Pathogen presence
-- Butyrate-producing bacteria levels
-
-### 11.4 Personalized Recommendations
-
-<div align="center">
-  <img width="1509" height="528" alt="Personalized Recommendations" src="https://github.com/user-attachments/assets/73aeff12-1803-45f9-8d54-a94d23506bcd">
-  <p><em>Figure 11: Personalized Health Recommendations</em></p>
-</div>
-
-Based on risk assessment:
-- **Dietary**: Fiber intake, probiotic foods, fermented products
-- **Lifestyle**: Exercise, stress management, sleep hygiene
-- **Medical**: Screening recommendations, specialist referrals
 
 ---
 
-## 12.0 User Interface & Controls
 
-### 12.1 Channel Controls
+# Microbiome Signal Analysis Module
 
-| Control | Function | Implementation |
-|---------|----------|----------------|
-| Checkbox | Show/hide channel | Toggle visibility in plot |
-| Color Picker | Change channel color | RGB color selection |
-| Thickness Slider | Adjust line width | 0.5 - 3.0 pixels |
+<img width="1841" height="882" alt="Image" src="https://github.com/user-attachments/assets/5e3cb51f-0a71-4cdf-806c-a6a911e846e6" />
 
-### 12.2 Playback Controls
+## 🌿 Project Overview
 
-| Control | Function | Range |
-|---------|----------|-------|
-| Play/Pause | Start/stop animation | - |
-| Speed Slider | Adjust playback rate | 0.2x - 5.0x |
-| Window Slider | Change visible duration | 2s - 20s |
-| Position Slider | Manual navigation | 0% - 100% |
-| Reset | Return to start | - |
+This project provides a **microbiome analysis tool** that helps estimate patient microbiome health profiles based on bacterial abundance data.
 
-### 12.3 Graph-Specific Controls
+The module analyzes gut microbiome composition and correlates it with known disease-associated microbial patterns.
 
-| Graph Type | Controls Available |
-|------------|-------------------|
-| XOR | Channel selection, chunk size, color map |
-| Polar | Channel, period, mode (sliding/cumulative) |
-| Recurrence | Channel X, Channel Y, threshold, color map |
-| FFT | Channel selection, frequency range |
+It is designed to be:
 
-### 12.4 Keyboard Shortcuts
-
-| Key | Function |
-|-----|----------|
-| Space | Play/Pause |
-| ← → | Navigate backward/forward |
-| + | Zoom in |
-| - | Zoom out |
-| R | Reset view |
-| C | Toggle combined/separate mode |
-| F | Toggle fullscreen |
+- User-friendly
+- Robust against invalid numerical inputs
+- Suitable for backend integration
+- JSON-safe for web applications
 
 ---
 
-## 13.0 File Handling
+## ⚙️ Features
 
-### 13.1 Supported Formats
+### 🔬 Microbiome Profiling
+- Estimates the closest microbial health/disease pattern.
+- Supports multiple conditions including:
+  - Healthy profile
+  - Inflammatory bowel disease pattern
+  - Type 2 diabetes profile
+  - Obesity-associated profile
+  - COVID-19 dysbiosis pattern
+  - Colorectal cancer-associated pattern
+- <img width="1850" height="792" alt="Image" src="https://github.com/user-attachments/assets/9e43dce1-c69e-4f53-a246-6eb68635a896" />
+### 📊 Mathematical Analysis Methods
+- Shannon diversity index calculation
+- Jensen–Shannon distance similarity measurement
+- Dysbiosis index estimation
+- Firmicutes/Bacteroidetes ratio biomarker
 
-| Format | Extension | Library | Max Size |
-|--------|-----------|---------|----------|
-| CSV | .csv | Native | 500 MB |
-| Text | .txt | Native | 500 MB |
-| EDF | .edf | pyEDFlib | 500 MB |
-| BDF | .bdf | pyEDFlib | 500 MB |
-| MATLAB | .mat | h5py, scipy.io | 500 MB |
-| WFDB | .dat/.hea | wfdb | 500 MB |
-| WAV | .wav | soundfile | 500 MB |
-| MP3 | .mp3 | librosa | 500 MB |
+### 🧠 Risk Detection System
+The analyzer identifies potential microbiome risk signals such as:
 
-### 13.2 Parsers Implementation
+- High inflammation markers
+- Low microbial diversity
+- Abnormal bacterial ratios
+- Cancer-associated bacterial elevation
+<img width="856" height="538" alt="Image" src="https://github.com/user-attachments/assets/95d4f51a-2122-4d8d-9a4d-09ab7d73dfd7" />
 
-**Common Interface**:
-```python
-def parse_file(file_path, file_type):
-    if file_type == 'csv':
-        return parse_csv(file_path)
-    elif file_type == 'edf':
-        return parse_edf(file_path)
-    elif file_type == 'mat':
-        return parse_mat(file_path)
-    # ... etc.
-```
+### 💡 Personalized Recommendations
+The system provides:
+- Dietary suggestions
+- Lifestyle guidance
+- Screening recommendations based on risk factors
+<img width="1509" height="528" alt="Image" src="https://github.com/user-attachments/assets/73aeff12-1803-45f9-8d54-a94d23506bcd" />
+---
 
-### 13.3 Upload Limitations
-- Maximum file size: 500 MB
-- Maximum channels: Limited by system memory
-- Temporary storage: Files deleted after processing
-- Supported encodings: UTF-8, ASCII, binary
+
+
+## Support
+- **Email**: alaaessam446@gmail.com
+- **Email**: abdullahgamil285@gmail.com
+- **Email**: sagasadek164@gmail.com
+- **Email**: abdelrahman.aly04@eng-st.cu.edu.eg
 
 ---
 
-## 14.0 API Reference
-
-### 14.1 Medical Endpoints
-
-| Endpoint | Method | Parameters | Response |
-|----------|--------|------------|----------|
-| `/api/medical/ecg/predict` | POST | file | Diagnosis with confidence |
-| `/api/medical/eeg/predict` | POST | file | Abnormality classification |
-| `/api/medical/process` | POST | file, options | Processed signal data |
-
-### 14.2 Financial Endpoints
-
-| Endpoint | Method | Parameters | Response |
-|----------|--------|------------|----------|
-| `/api/finance/history` | GET | ticker, period | OHLCV data |
-| `/api/finance/predict` | GET | ticker | Price prediction |
-| `/api/finance/indicators` | GET | ticker | Technical indicators |
-| `/api/finance/tickers` | GET | - | Supported tickers |
-
-### 14.3 Acoustic Endpoints
-
-| Endpoint | Method | Parameters | Response |
-|----------|--------|------------|----------|
-| `/api/acoustic/doppler/generate` | POST | frequency, velocity | Audio data |
-| `/api/acoustic/doppler/estimate` | POST | file | Velocity estimate |
-| `/api/acoustic/drone/detect` | POST | file | Detection result |
-
-### 14.4 Microbiome Endpoints
-
-| Endpoint | Method | Parameters | Response |
-|----------|--------|------------|----------|
-| `/api/microbiome/analyze` | POST | abundance_data | Disease profile |
-| `/api/microbiome/recommendations` | POST | profile | Personalized advice |
-
----
-
-## 15.0 Video Demonstrations
-
-### 15.1 ECG Viewer Demo
-
-<div align="center">
-  <video src="https://github.com/user-attachments/assets/2246c0b1-c6ab-4f3c-bc84-9623197aa19c" controls width="100%">
-    Your browser does not support the video tag.
-  </video>
-  <p><em>Video 1: ECG Signal Viewer - Complete Demonstration</em></p>
-</div>
-
-**Demonstrates**:
-- File upload and channel display
-- Combined vs Separate viewing modes
-- Playback controls and speed adjustment
-- XOR Graph, Polar Graph, and Recurrence Plot
-- AI Diagnosis with real ECG model
-- Classic ML comparison
-
-### 15.2 EEG Viewer Demo
-
-<div align="center">
-  <video src="https://github.com/user-attachments/assets/5d56951c-5727-40fa-aee6-92c360ed2725" controls width="100%">
-    Your browser does not support the video tag.
-  </video>
-  <p><em>Video 2: EEG Signal Viewer - Complete Demonstration</em></p>
-</div>
-
-**Demonstrates**:
-- Loading 19-channel EEG files
-- Frequency band analysis
-- Polar Graph animation of brain waves
-- Recurrence Plot for hemisphere comparison
-- AI model prediction with clinical features
-- Spectral analysis comparison
-
----
-
-## 16.0 Troubleshooting
-
-### 16.1 Common Issues
-
-| Issue | Possible Cause | Solution |
-|-------|---------------|----------|
-| Model not loading | Missing model files | Place models in correct directory |
-| File parse error | Unsupported format | Check file format and encoding |
-| Backend connection refused | Server not running | Start Flask server on port 5000 |
-| Slow performance | Large file size | Reduce file size or channels |
-| No prediction output | Missing dependencies | Install required packages |
-
-### 16.2 Solutions & Workarounds
-
-**Model Loading Issues**:
-```bash
-# Verify model paths
-ls backend/modules/ecg/models/
-ls backend/modules/eeg/models/
-
-# Expected files:
-# - ecg_model.hdf5
-# - EEG_MODEL.pkl
-```
-
-**File Format Problems**:
-- Ensure CSV files have headers
-- Check EDF files for corruption
-- Verify MATLAB version compatibility
-
-**Performance Optimization**:
-- Reduce visible channels
-- Decrease window size
-- Lower sampling rate if applicable
-
----
-
-## 17.0 Support & Contact
-
-### Development Team
-
-| Name | Email | Responsibility |
-|------|-------|---------------|
-| Alaa Essam | alaaessam446@gmail.com | ECG Module, AI Models |
-| Abdullah Gamil | abdullahgamil285@gmail.com | EEG Module, Visualization |
-| Saga Sadek | sagasadek164@gmail.com | Financial Module |
-| Abdelrahman Aly | abdelrahman.aly04@eng-st.cu.edu.eg | Acoustic Module, Microbiome |
-
-### Project Information
-- **Course**: Digital Signal Processing (DSP)
-- **Institution**: Faculty of Engineering Cairo University
-- **Department**: Systems and Biomedical Engineering
-- **Term**: Spring 2026
-- **Team**: sbeg205_spring26_team06
-
-### Reporting Issues
-Please report issues through the GitHub repository or contact any team member directly via email.
