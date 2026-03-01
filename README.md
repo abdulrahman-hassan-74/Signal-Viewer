@@ -205,6 +205,8 @@ Server runs at `http://127.0.0.1:5000`
 
 #### 1. Continuous-Time Viewer
 **Two viewing modes:**
+<img width="1876" height="641" alt="Image" src="https://github.com/user-attachments/assets/7b31d31a-5e37-493a-8227-901dc3377282" />
+
 
 | Mode | Description | Controls |
 |------|-------------|----------|
@@ -217,6 +219,8 @@ Server runs at `http://127.0.0.1:5000`
 - Window slider (2s - 20s)
 - Position slider for manual navigation
 - ↺ Reset to beginning
+<img width="1890" height="745" alt="Image" src="https://github.com/user-attachments/assets/c54e7134-2634-4e38-994f-8621ff98d6bb" />
+
 
 #### 2. XOR Graph
 **What it shows:** Differences between consecutive time chunks
@@ -231,6 +235,7 @@ Server runs at `http://127.0.0.1:5000`
 - Channel selection
 - Chunk size (time period)
 - Color map selection (Hot, Viridis, Plasma, etc.)
+<img width="1843" height="761" alt="Image" src="https://github.com/user-attachments/assets/7872f447-6e16-471c-9a7d-670c6d7b3f0b" />
 
 #### 3. Polar Graph
 **What it shows:** Signal magnitude (r) vs time angle (θ)
@@ -247,6 +252,7 @@ Server runs at `http://127.0.0.1:5000`
 - ⏸ Pause - Stops animation
 - ↺ Reset - Returns to first cycle
 - Cycle counter shows progress
+<img width="1876" height="813" alt="Image" src="https://github.com/user-attachments/assets/94908837-f2e9-4e6a-b723-7bcab53978b2" />
 
 #### 4. Recurrence Graph
 **What it shows:** Comparison between two channels as cumulative scatter plot
@@ -263,9 +269,12 @@ Server runs at `http://127.0.0.1:5000`
 - Channel X and Y selection
 - Similarity threshold (lower = stricter)
 - Color map selection
+<img width="1864" height="730" alt="Image" src="https://github.com/user-attachments/assets/263273e7-e90f-4a88-8462-24ba020314b4" />
 
 #### 5. FFT (Frequency Spectrum)
 **What it shows:** Frequency content of the signal
+<img width="1886" height="590" alt="Image" src="https://github.com/user-attachments/assets/e5adb569-e65e-4e2b-8575-70545de3e7df" />
+
 
 **EEG Bands:**
 | Band | Frequency | Significance |
